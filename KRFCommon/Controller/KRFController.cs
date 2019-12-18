@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace KRFCommon.Controller
 {
-    public class KFRController : ControllerBase
+    public class KRFController : ControllerBase
     {
         public async Task<IActionResult> ExecuteAsyncQuery<Tinput, Toutput>(Tinput request, IQuery<Tinput, Toutput> query)
             where Tinput : class
