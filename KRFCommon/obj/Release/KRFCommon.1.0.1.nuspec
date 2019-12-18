@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>KRFCommon</id>
+    <version>1.0.1</version>
+    <authors>KRFCommon</authors>
+    <owners>KRFCommon</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Package Description</description>
+    <copyright>Joao Morgado</copyright>
+    <dependencies>
+      <group targetFramework=".NETCoreApp3.1">
+        <dependency id="Microsoft.AspNetCore.Mvc.Core" version="2.2.5" exclude="Build,Analyzers" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="D:\KRFNugetRepo\netcoreapp3.1\KRFCommon.dll" target="lib\netcoreapp3.1\KRFCommon.dll" />
+  </files>
+</package>
