@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29609.76
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KRFCommon", "KRFCommon\KRFCommon.csproj", "{089403F1-6E70-426C-A58E-90EF43B8FD2F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{089403F1-6E70-426C-A58E-90EF43B8FD2F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{089403F1-6E70-426C-A58E-90EF43B8FD2F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{089403F1-6E70-426C-A58E-90EF43B8FD2F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{089403F1-6E70-426C-A58E-90EF43B8FD2F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D81498C6-9383-489D-AB19-8B3CA45ECAA1}
+	EndGlobalSection
+EndGlobal

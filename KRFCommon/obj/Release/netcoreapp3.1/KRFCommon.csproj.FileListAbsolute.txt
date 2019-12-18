@@ -1,0 +1,8 @@
+C:\Users\E868\COREAPI\KJohnMicroServices\NUGETREPO\netcoreapp3.1\KRFCommon.deps.json
+C:\Users\E868\COREAPI\KJohnMicroServices\NUGETREPO\netcoreapp3.1\KRFCommon.dll
+C:\Users\E868\COREAPI\KJohnMicroServices\NUGETREPO\netcoreapp3.1\KRFCommon.pdb
+C:\Users\E868\COREAPI\KJohnMicroServices\KRFCommon\KRFCommon\obj\Release\netcoreapp3.1\KRFCommon.csprojAssemblyReference.cache
+C:\Users\E868\COREAPI\KJohnMicroServices\KRFCommon\KRFCommon\obj\Release\netcoreapp3.1\KRFCommon.AssemblyInfoInputs.cache
+C:\Users\E868\COREAPI\KJohnMicroServices\KRFCommon\KRFCommon\obj\Release\netcoreapp3.1\KRFCommon.AssemblyInfo.cs
+C:\Users\E868\COREAPI\KJohnMicroServices\KRFCommon\KRFCommon\obj\Release\netcoreapp3.1\KRFCommon.dll
+C:\Users\E868\COREAPI\KJohnMicroServices\KRFCommon\KRFCommon\obj\Release\netcoreapp3.1\KRFCommon.pdb
