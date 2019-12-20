@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using KRFCommon.Context;
+using System.Threading.Tasks;
 
 namespace KRFCommon.CQRS.Query
 {
