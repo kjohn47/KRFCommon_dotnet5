@@ -1,4 +1,5 @@
-﻿using KRFCommon.CQRS.Query;
+﻿using KRFCommon.Context;
+using KRFCommon.CQRS.Query;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
