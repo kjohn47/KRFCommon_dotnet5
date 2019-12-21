@@ -4,11 +4,12 @@ namespace KRFCommon.Context
 {
     public class UserContext: IUserContext
     {
-        public UserContext( ITokenProvider tokenProvider )
+        public UserContext( ITokenProvider tokenProvider, string key )
         {
             if( !string.IsNullOrEmpty( tokenProvider.Token ) )
             {
-                this.Name = tokenProvider.Token;
+                this.Name = tokenProvider.Token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? tokenProvider.Token.Substring(7) : tokenProvider.Token;
+                this.Surname = key;
             }
         }
 
