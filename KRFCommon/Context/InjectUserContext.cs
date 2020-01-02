@@ -26,7 +26,7 @@ namespace KRFCommon.Context
                 x.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes( key )),
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes( key )),
                     ValidateIssuer = false,
                     ValidateAudience = false,
                     ValidateLifetime = false
