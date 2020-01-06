@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using KRFCommon.Helpers;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -14,14 +15,14 @@ namespace KRFCommon.Context
             {
                 var token = tokenProvider.Token.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) ? tokenProvider.Token.Substring(7) : tokenProvider.Token;
                 var jsonToken = Jose.JWT.Decode(token, Encoding.UTF8.GetBytes(key));
-                var context = JsonConvert.DeserializeObject<Dictionary<string,string>>(jsonToken);
+                var context = JsonConvert.DeserializeObject<CaseInsensitiveDictionary<string>>(jsonToken);
                 if (context != null)
                 {
-                    this.UserId = new Guid(context.GetValueOrDefault("UserId"));
-                    this.Name = context.GetValueOrDefault("Name") ?? string.Empty;
-                    this.Surname = context.GetValueOrDefault("Surname") ?? string.Empty;
-                    this.UserName = context.GetValueOrDefault("UserName") ?? throw new Exception("UserName cannot be empty");
-                    this.Claim = context.GetValueOrDefault("isAdmin").Equals("true", StringComparison.OrdinalIgnoreCase) ? Claims.Admin : Claims.User;
+                    try { this.UserId = new Guid(context.GetValueOrDefault("userid", string.Empty)); } catch { throw new Exception("Invalid User ID"); }
+                    this.Name = context.GetValueOrDefault("name", string.Empty);
+                    this.Surname = context.GetValueOrDefault("surname", string.Empty);
+                    this.UserName = context.GetValueOrDefault("username") ?? throw new Exception("UserName cannot be empty");
+                    this.Claim = context.GetValueOrDefault("isadmin", string.Empty).Equals("true", StringComparison.OrdinalIgnoreCase) ? Claims.Admin : Claims.User;
                 }
             }
         }
