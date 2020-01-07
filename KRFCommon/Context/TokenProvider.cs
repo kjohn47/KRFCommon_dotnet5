@@ -6,12 +6,12 @@ namespace KRFCommon.Context
 {
     public class TokenProvider : ITokenProvider
     {
-        public TokenProvider( IHttpContextAccessor httpContextAccessor)
+        public TokenProvider( IHttpContextAccessor httpContextAccessor, string tokenIdentifier )
         {
             this.Token = "";
             var httpContext = httpContextAccessor.HttpContext;
             StringValues tokenData;
-            httpContext.Request.Headers.TryGetValue("AccessToken", out tokenData);
+            httpContext.Request.Headers.TryGetValue(tokenIdentifier, out tokenData);
             if( tokenData.Count > 0 )
             {
                 this.Token = tokenData.First();
