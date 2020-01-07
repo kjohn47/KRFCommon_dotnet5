@@ -15,7 +15,7 @@ namespace KRFCommon.Controller
 
             if( queryResult.HasError )
             {
-                this.StatusCode(queryResult.Error.ErrorStatusCode, queryResult.Error.ErrorMessage);
+                return this.StatusCode(queryResult.Error.ErrorStatusCode, queryResult.Error.ErrorMessage);
             }
 
             return this.Ok( queryResult.Result );
