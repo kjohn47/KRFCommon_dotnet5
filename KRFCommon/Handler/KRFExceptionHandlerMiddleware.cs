@@ -11,13 +11,13 @@ namespace KRFCommon.Handler
 {
     public static class KRFExceptionHandlerMiddleware
     {
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier)
+        public static void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier)
         {
             app.UseExceptionHandler(b => b.Run(async c =>
             {
                 var error = (IExceptionHandlerFeature)c.Features[typeof(IExceptionHandlerFeature)];
                 await c.Response.WriteAsync(error.Error.Message);
-                if (env.IsDevelopment())
+                if (logErrors)
                 {
                     var requestToken = c.Request.Headers[tokenIdentifier];
                     var body = c.Request.Body;
@@ -26,9 +26,9 @@ namespace KRFCommon.Handler
                     var requestBody = Encoding.UTF8.GetString(buffer);
                     var requestUrl = c.Request.Path + c.Request.QueryString;
                     var appLogger = loggerFactory.CreateLogger(apiName);
-                    appLogger.LogError("Request: " + requestUrl);
-                    appLogger.LogError("Request Token: " + requestToken);
-                    appLogger.LogError("Request Body: " + requestBody);
+                    appLogger.LogInformation("Request: " + requestUrl);
+                    appLogger.LogInformation("Request Token: " + requestToken);
+                    appLogger.LogInformation("Request Body: " + requestBody);
                     appLogger.LogError(error.Error, error.Error.Message);
                 }
             }));
