@@ -20,9 +20,11 @@ namespace KRFCommon.Handler
                 if (logErrors)
                 {
                     var requestToken = c.Request.Headers[tokenIdentifier];
+                    c.Request.EnableBuffering();
                     var body = c.Request.Body;
                     var buffer = new byte[Convert.ToInt32(c.Request.ContentLength)];
-                    await c.Request.Body.ReadAsync(buffer, 0, buffer.Length);
+                    await body.ReadAsync(buffer, 0, buffer.Length);
+                    body.Seek(0, System.IO.SeekOrigin.Begin);
                     var requestBody = Encoding.UTF8.GetString(buffer);
                     var requestUrl = c.Request.Path + c.Request.QueryString;
                     var appLogger = loggerFactory.CreateLogger(apiName);
