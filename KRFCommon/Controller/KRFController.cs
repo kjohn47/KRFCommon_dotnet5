@@ -1,6 +1,8 @@
 ﻿using KRFCommon.Context;
+using KRFCommon.CQRS.Command;
 using KRFCommon.CQRS.Query;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace KRFCommon.Controller
@@ -19,6 +21,27 @@ namespace KRFCommon.Controller
             }
 
             return this.Ok( queryResult.Result );
+        }
+
+        public async Task<IActionResult> ExecuteAsyncCommand<Tinput, Toutput>
+            (
+                Tinput request, 
+                ICommand<Tinput, Toutput> command,
+                Func<Toutput, IActionResult> changeAction = null
+            )
+        where Tinput : class
+        where Toutput : class
+        {
+            var commandValid = await command.ExecuteValidationAsync(request);
+
+            if (commandValid.HasError)
+            {
+                return this.StatusCode(commandValid.Error.ErrorStatusCode, commandValid.Error.ErrorMessage);
+            }
+
+            var commandResult = await command.ExecuteCommandAsync(request);
+
+            return changeAction != null ? changeAction(commandResult) : this.Ok(commandResult);
         }
     }
 }

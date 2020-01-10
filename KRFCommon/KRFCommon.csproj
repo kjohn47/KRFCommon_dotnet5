@@ -4,17 +4,13 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Copyright>Joao Morgado</Copyright>
-    <Version>1.2.0.0</Version>
+    <Version>1.2.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>$(APINUGETREPO)</OutputPath>
     <GenerateSerializationAssemblies>Auto</GenerateSerializationAssemblies>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Folder Include="CQRS\Command\" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="jose-jwt" Version="2.5.0" />
