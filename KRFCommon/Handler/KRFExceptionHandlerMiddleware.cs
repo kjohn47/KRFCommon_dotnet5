@@ -4,14 +4,13 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Text;
+using System.IO;
 
 namespace KRFCommon.Handler
 {
     public static class KRFExceptionHandlerMiddleware
     {
-        public static void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier)
+        public static void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )
         {
             app.UseExceptionHandler(b => b.Run(async c =>
             {
@@ -20,17 +19,32 @@ namespace KRFCommon.Handler
                 if (logErrors)
                 {
                     var requestToken = c.Request.Headers[tokenIdentifier];
-                    c.Request.EnableBuffering();
-                    var body = c.Request.Body;
-                    var buffer = new byte[Convert.ToInt32(c.Request.ContentLength)];
-                    await body.ReadAsync(buffer, 0, buffer.Length);
-                    body.Seek(0, System.IO.SeekOrigin.Begin);
-                    var requestBody = Encoding.UTF8.GetString(buffer);
+                    string reqBody = "";
+                    if (c.Request.Body.CanSeek && ( logReqLimit == null || (int)logReqLimit >= c.Request.ContentLength ))
+                    {
+                        var body = c.Request.Body;
+                        body.Seek(0, SeekOrigin.Begin);
+                        string buffer = await new StreamReader(body).ReadToEndAsync();
+                        body.Seek(0, SeekOrigin.Begin);
+                        reqBody = buffer;
+                    }
+                    else
+                    {
+                        reqBody = "Could not read request body: Request reading disabled or content too long";
+                    }
                     var requestUrl = c.Request.Path + c.Request.QueryString;
                     var appLogger = loggerFactory.CreateLogger(apiName);
-                    appLogger.LogInformation("Request: " + requestUrl);
-                    appLogger.LogInformation("Request Token: " + requestToken);
-                    appLogger.LogInformation("Request Body: " + requestBody);
+                    string reqLog = "\n------------------------------------------------------\n" +
+                                    "                     Request Log:\n"+
+                                    "------------------------------------------------------\n" +
+                                    "Request: " + requestUrl + " \n" +
+                                    "Request Method: " + c.Request.Method + "\n" +
+                                    "Request Token: " + requestToken + "\n" +
+                                    "Request Body: " + reqBody + "\n" +
+                                    "------------------------------------------------------\n" +
+                                    "                      Exception:\n" +
+                                    "------------------------------------------------------";
+                    appLogger.LogError(reqLog);
                     appLogger.LogError(error.Error, error.Error.Message);
                 }
             }));
