@@ -44,8 +44,7 @@ namespace KRFCommon.Handler
                                     "------------------------------------------------------\n" +
                                     "                      Exception:\n" +
                                     "------------------------------------------------------";
-                    appLogger.LogError(reqLog);
-                    appLogger.LogError(error.Error, error.Error.Message);
+                    appLogger.LogError(error.Error, reqLog + "\n" + error.Error.Message);                    
                 }
             }));
         }
