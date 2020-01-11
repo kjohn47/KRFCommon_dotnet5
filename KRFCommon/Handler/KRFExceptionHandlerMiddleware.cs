@@ -14,8 +14,7 @@ namespace KRFCommon.Handler
         {
             app.UseExceptionHandler(b => b.Run(async c =>
             {
-                var error = (IExceptionHandlerFeature)c.Features[typeof(IExceptionHandlerFeature)];
-                await c.Response.WriteAsync(error.Error.Message);
+                var error = (IExceptionHandlerFeature)c.Features[typeof(IExceptionHandlerFeature)];                
                 if (logErrors)
                 {
                     var requestToken = c.Request.Headers[tokenIdentifier];
@@ -46,6 +45,7 @@ namespace KRFCommon.Handler
                                     "------------------------------------------------------";
                     appLogger.LogError(error.Error, reqLog + "\n" + error.Error.Message);                    
                 }
+                await c.Response.WriteAsync(error.Error.Message);
             }));
         }
     }
