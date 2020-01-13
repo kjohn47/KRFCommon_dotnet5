@@ -2,6 +2,7 @@
 using KRFCommon.CQRS.Command;
 using KRFCommon.CQRS.Query;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using System;
 using System.Threading.Tasks;
 
@@ -17,7 +18,7 @@ namespace KRFCommon.Controller
 
             if( queryResult.HasError )
             {
-                return this.StatusCode(queryResult.Error.ErrorStatusCode, queryResult.Error.ErrorMessage);
+                return this.StatusCode(queryResult.Error.ErrorStatusCode, JsonConvert.SerializeObject(queryResult.Error) );
             }
 
             return this.Ok( queryResult.Result );
@@ -36,7 +37,7 @@ namespace KRFCommon.Controller
 
             if (commandValid.HasError)
             {
-                return this.StatusCode(commandValid.Error.ErrorStatusCode, commandValid.Error.ErrorMessage);
+                return this.StatusCode(commandValid.Error.ErrorStatusCode, JsonConvert.SerializeObject(commandValid.Error) );
             }
 
             var commandResult = await command.ExecuteCommandAsync(request);
