@@ -14,11 +14,13 @@ namespace KRFCommon.Context
                 {
                     case ((int)HttpStatusCode.Unauthorized):
                         {
+                            ctx.HttpContext.Response.ContentType = "plain/text";
                             await ctx.HttpContext.Response.WriteAsync("User is not authenticated");
                             break;
                         }
                     case ((int)HttpStatusCode.Forbidden):
                         {
+                            ctx.HttpContext.Response.ContentType = "plain/text";
                             await ctx.HttpContext.Response.WriteAsync("User is not allowed to resource");
                             break;
                         }

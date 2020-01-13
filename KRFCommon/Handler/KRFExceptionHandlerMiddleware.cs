@@ -45,6 +45,7 @@ namespace KRFCommon.Handler
                                     "------------------------------------------------------";
                     appLogger.LogError(error.Error, reqLog + "\n" + error.Error.Message);                    
                 }
+                c.Response.ContentType = "plain/text";
                 await c.Response.WriteAsync(error.Error.Message);
             }));
         }
