@@ -17,14 +17,14 @@ namespace KRFCommon.Context
                     case ((int)HttpStatusCode.Unauthorized):
                         {
                             ctx.HttpContext.Response.ContentType = "plain/text";
-                            string errorMessage = JsonConvert.SerializeObject(new ErrorOut(HttpStatusCode.Unauthorized, "User is not authenticated", "Authentication"));
+                            string errorMessage = JsonConvert.SerializeObject(new ErrorOut(HttpStatusCode.Unauthorized, "User is not authenticated", false, "Authentication"));
                             await ctx.HttpContext.Response.WriteAsync(errorMessage);
                             break;
                         }
                     case ((int)HttpStatusCode.Forbidden):
                         {
                             ctx.HttpContext.Response.ContentType = "plain/text";
-                            string errorMessage = JsonConvert.SerializeObject(new ErrorOut(HttpStatusCode.Forbidden, "User is not allowed to resource", "Authorization"));
+                            string errorMessage = JsonConvert.SerializeObject(new ErrorOut(HttpStatusCode.Forbidden, "User is not allowed to resource", false, "Authorization"));
                             await ctx.HttpContext.Response.WriteAsync(errorMessage);
                             break;
                         }

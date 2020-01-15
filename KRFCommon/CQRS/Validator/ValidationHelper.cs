@@ -19,7 +19,7 @@ namespace KRFCommon.CQRS.Validator
                 }
             }
 
-            return new ErrorOut(code, errorMessage, true, errorProperty);
+            return new ErrorOut(code, errorMessage, errorProperty);
         }
     }
 }

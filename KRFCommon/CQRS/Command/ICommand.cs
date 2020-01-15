@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using KRFCommon.CQRS.Common;
+using System.Threading.Tasks;
 
 namespace KRFCommon.CQRS.Command
 {
@@ -7,6 +8,6 @@ namespace KRFCommon.CQRS.Command
         where TResp: class
     {
         Task<CommandValidationError> ExecuteValidationAsync(TReq request);
-        Task<TResp> ExecuteCommandAsync(TReq request);
+        Task<IResponseOut<TResp>> ExecuteCommandAsync(TReq request);
     }
 }

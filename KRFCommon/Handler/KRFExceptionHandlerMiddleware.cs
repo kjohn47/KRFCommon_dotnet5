@@ -49,7 +49,7 @@ namespace KRFCommon.Handler
                     appLogger.LogError(error.Error, reqLog + "\n" + error.Error.Message);                    
                 }
                 c.Response.ContentType = "plain/text";
-                string errorMessage = JsonConvert.SerializeObject(new ErrorOut( (HttpStatusCode)c.Response.StatusCode, error.Error.Message, "Exception" ));
+                string errorMessage = JsonConvert.SerializeObject(new ErrorOut( (HttpStatusCode)c.Response.StatusCode, error.Error.Message, false, "Exception" ));
                 await c.Response.WriteAsync(errorMessage);
             }));
         }

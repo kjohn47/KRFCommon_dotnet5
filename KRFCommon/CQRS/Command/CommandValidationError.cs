@@ -16,5 +16,5 @@ namespace KRFCommon.CQRS.Command
 
         public ErrorOut Error { get; set; }
         public bool HasError { get; private set; }
-}
+    }
 }

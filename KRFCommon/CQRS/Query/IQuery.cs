@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using KRFCommon.CQRS.Common;
+using System.Threading.Tasks;
 
 namespace KRFCommon.CQRS.Query
 {
@@ -6,6 +7,6 @@ namespace KRFCommon.CQRS.Query
         where Tinput : class
         where Toutput : class
     {
-        Task<IQueryOut<Toutput>> QueryAsync(Tinput request);
+        Task<IResponseOut<Toutput>> QueryAsync(Tinput request);
     }
 }

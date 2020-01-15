@@ -16,7 +16,7 @@ namespace KRFCommon.Controller
         {
             var queryResult = await query.QueryAsync( request );
 
-            if( queryResult.HasError )
+            if( queryResult.Error != null )
             {
                 return this.StatusCode(queryResult.Error.ErrorStatusCode, JsonConvert.SerializeObject(queryResult.Error) );
             }
@@ -41,8 +41,12 @@ namespace KRFCommon.Controller
             }
 
             var commandResult = await command.ExecuteCommandAsync(request);
+            if( commandResult.Error != null )
+            {
+                return this.StatusCode(commandResult.Error.ErrorStatusCode, JsonConvert.SerializeObject(commandResult.Error));
+            }
 
-            return changeAction != null ? changeAction(commandResult) : this.Ok(commandResult);
+            return changeAction != null ? changeAction(commandResult.Result) : this.Ok(commandResult.Result);
         }
     }
 }
