@@ -1,8 +1,8 @@
 ﻿using KRFCommon.CQRS.Common;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
 using System.Net;
+using System.Text.Json;
 
 namespace KRFCommon.Context
 {
@@ -16,15 +16,15 @@ namespace KRFCommon.Context
                 {
                     case ((int)HttpStatusCode.Unauthorized):
                         {
-                            ctx.HttpContext.Response.ContentType = "plain/text";
-                            string errorMessage = JsonConvert.SerializeObject(new ErrorOut(HttpStatusCode.Unauthorized, "User is not authenticated", false, "Authentication"));
+                            ctx.HttpContext.Response.ContentType = "application/json";
+                            string errorMessage = JsonSerializer.Serialize(new ErrorOut(HttpStatusCode.Unauthorized, "User is not authenticated", false, ResponseErrorType.Application, "Authentication"));
                             await ctx.HttpContext.Response.WriteAsync(errorMessage);
                             break;
                         }
                     case ((int)HttpStatusCode.Forbidden):
                         {
-                            ctx.HttpContext.Response.ContentType = "plain/text";
-                            string errorMessage = JsonConvert.SerializeObject(new ErrorOut(HttpStatusCode.Forbidden, "User is not allowed to resource", false, "Authorization"));
+                            ctx.HttpContext.Response.ContentType = "application/json";
+                            string errorMessage = JsonSerializer.Serialize(new ErrorOut(HttpStatusCode.Forbidden, "User is not allowed to resource", false, ResponseErrorType.Application, "Authorization"));
                             await ctx.HttpContext.Response.WriteAsync(errorMessage);
                             break;
                         }

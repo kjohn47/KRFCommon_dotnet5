@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System.IO;
-using Newtonsoft.Json;
 using KRFCommon.CQRS.Common;
 using System.Net;
+using System.Text.Json;
 
 namespace KRFCommon.Handler
 {
@@ -48,8 +48,8 @@ namespace KRFCommon.Handler
                                     "------------------------------------------------------";
                     appLogger.LogError(error.Error, reqLog + "\n" + error.Error.Message);                    
                 }
-                c.Response.ContentType = "plain/text";
-                string errorMessage = JsonConvert.SerializeObject(new ErrorOut( (HttpStatusCode)c.Response.StatusCode, error.Error.Message, false, "Exception" ));
+                c.Response.ContentType = "application/json";
+                string errorMessage = JsonSerializer.Serialize( new ErrorOut( (HttpStatusCode)c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
                 await c.Response.WriteAsync(errorMessage);
             }));
         }

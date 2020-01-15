@@ -15,6 +15,8 @@ namespace KRFCommon.CQRS.Common
         [EnumMember(Value = "Application")]
         Application,
         [EnumMember(Value = "Validation")]
-        Validation
+        Validation,
+        [EnumMember(Value = "Exception")]
+        Exception
     }
 }
