@@ -2,12 +2,5 @@ Config Visual Studio
 KRFCommon module will output nuget package
 Build as release (update the new version before)
 
----->>>> BEFORE BUILD AND OPENING PROJECT <<<<----
-
-Add Environment Variable to Nuget local repo
-
--> APINUGETREPO -> Repo directory
-
-Add line to nuget repo config on <packageSources>
-file location: %appdata%\NuGet\NuGet.Config
--> <add key="KRFCommonNuget" value="%APINUGETREPO%" />
+deploy to repository:
+ dotnet nuget push .\KRFCommon\bin\Release\KRFCommon.{version}.nupkg --api-key <API_KEY> --source "github"
