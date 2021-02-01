@@ -1,18 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <OutputType>Library</OutputType>
     <PackageId>KRFCommon</PackageId>
-    <Version>1.2.0.4</Version>
+    <Version>1.2.5.0</Version>
     <Authors>Joao Morgado</Authors>
     <Copyright>Joao Morgado</Copyright>
     <Company>GitHub</Company>
     <PackageDescription>This package common library used on KRF api!</PackageDescription>
     <RepositoryUrl>https://github.com/kjohn47/KRFCommon</RepositoryUrl>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.2.0.4</AssemblyVersion>
+    <AssemblyVersion>1.2.5.0</AssemblyVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="FluentValidation.AspNetCore" Version="9.5.0" />
     <PackageReference Include="jose-jwt" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.2.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
   </ItemGroup>

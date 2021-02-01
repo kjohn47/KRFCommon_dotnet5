@@ -9,7 +9,7 @@ namespace KRFCommon.CQRS.Validator
     {
         public KRFValidator()
         {
-            this.CascadeMode = CascadeMode.StopOnFirstFailure;
+            this.CascadeMode = CascadeMode.Stop;
         }
 
         public async Task<CommandValidationError> CheckValidationAsync(TInput request)
