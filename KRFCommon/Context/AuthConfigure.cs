@@ -1,11 +1,12 @@
-﻿using KRFCommon.CQRS.Common;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using System.Net;
-using System.Text.Json;
+﻿namespace KRFCommon.Context
+{     
+    using System.Net;
+    using System.Text.Json;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Http;
 
-namespace KRFCommon.Context
-{
+    using KRFCommon.CQRS.Common;
+
     public static class AuthConfigure
     {
         public static void Configure(IApplicationBuilder app)

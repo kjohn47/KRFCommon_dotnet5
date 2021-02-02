@@ -1,16 +1,17 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.IO;
-using KRFCommon.CQRS.Common;
-using System.Net;
-using System.Text.Json;
-
-namespace KRFCommon.Handler
+﻿namespace KRFCommon.Handler
 {
+    using System.Net;
+    using System.IO;
+    using System.Text.Json;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Diagnostics;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+
+    using KRFCommon.CQRS.Common;
+
     public static class KRFExceptionHandlerMiddleware
     {
         public static void Configure(IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )

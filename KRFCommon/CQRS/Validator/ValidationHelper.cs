@@ -1,9 +1,10 @@
-﻿using KRFCommon.CQRS.Common;
-using System;
-using System.Net;
-
-namespace KRFCommon.CQRS.Validator
+﻿namespace KRFCommon.CQRS.Validator
 {
+    using System;
+    using System.Net;
+
+    using KRFCommon.CQRS.Common;
+
     public static class ValidationHelper
     {
         public static ErrorOut GenerateError( string errorMessage, string errorProperty, string errorCode = "" )

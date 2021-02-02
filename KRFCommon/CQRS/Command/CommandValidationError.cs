@@ -1,20 +1,32 @@
-﻿using KRFCommon.CQRS.Common;
-namespace KRFCommon.CQRS.Command
+﻿namespace KRFCommon.CQRS.Command
 {
-    public class CommandValidationError
+    using KRFCommon.CQRS.Common;
+
+    public class CommandValidationError: ICommandValidationError
     {
         public CommandValidationError()
         {
-            this.HasError = false;
+            this.hasError = false;
         }
 
         public CommandValidationError(ErrorOut error ) 
         {
-            this.HasError = true;
-            this.Error = error;
+            this.hasError = true;
+            this.error = error;
         }
 
-        public ErrorOut Error { get; set; }
-        public bool HasError { get; private set; }
+        private ErrorOut error;
+
+        private bool hasError;
+
+        public ErrorOut GetError()
+        {
+            if(this.hasError)
+            {
+                return error;
+            }
+
+            return null;
+        }
     }
 }
