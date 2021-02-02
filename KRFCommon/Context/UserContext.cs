@@ -1,11 +1,12 @@
-﻿using KRFCommon.Helpers;
-using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace KRFCommon.Context
+﻿namespace KRFCommon.Context
 {
+    using Newtonsoft.Json;
+    using System;
+    using System.Collections.Generic;
+    using System.Text;
+
+    using KRFCommon.Helpers;
+
     public class UserContext: IUserContext
     {
         public UserContext( ITokenProvider tokenProvider, string key )

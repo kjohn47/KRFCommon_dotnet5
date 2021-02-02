@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace KRFCommon.Context
+﻿namespace KRFCommon.Context
 {
+    using System;
+
     public interface IUserContext
     {
         public Guid UserId { get; set; }

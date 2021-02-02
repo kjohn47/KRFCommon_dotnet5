@@ -1,16 +1,17 @@
-﻿using KRFCommon.CQRS.Command;
-using KRFCommon.CQRS.Query;
-using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
-
-namespace KRFCommon.Controller
+﻿namespace KRFCommon.Controller
 {
+    using System;
+    using System.Threading.Tasks;
+    using Microsoft.AspNetCore.Mvc;
+
+    using KRFCommon.CQRS.Command;
+    using KRFCommon.CQRS.Query;
+
     public class KRFController : ControllerBase
     {
         public async Task<IActionResult> ExecuteAsyncQuery<Tinput, Toutput>(Tinput request, IQuery<Tinput, Toutput> query)
-            where Tinput : class
-            where Toutput : class
+            where Tinput : IQueryRequest
+            where Toutput : IQueryResponse
         {
             var queryResult = await query.QueryAsync( request );
 
@@ -28,14 +29,14 @@ namespace KRFCommon.Controller
                 ICommand<Tinput, Toutput> command,
                 Func<Toutput, IActionResult> changeAction = null
             )
-        where Tinput : class
-        where Toutput : class
+        where Tinput : ICommandRequest
+        where Toutput : ICommandResponse
         {
             var commandValid = await command.ExecuteValidationAsync(request);
 
-            if (commandValid.HasError)
+            if (commandValid.GetError() != null)
             {
-                return this.StatusCode(commandValid.Error.ErrorStatusCode, commandValid.Error );
+                return this.StatusCode(commandValid.GetError().ErrorStatusCode, commandValid.GetError() );
             }
 
             var commandResult = await command.ExecuteCommandAsync(request);

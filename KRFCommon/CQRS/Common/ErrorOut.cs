@@ -1,7 +1,7 @@
-﻿using System.Net;
-
-namespace KRFCommon.CQRS.Common
+﻿namespace KRFCommon.CQRS.Common
 {
+    using System.Net;
+
     public class ErrorOut
     {
 

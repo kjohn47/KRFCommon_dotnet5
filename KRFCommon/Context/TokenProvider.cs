@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using System.Linq;
-
-namespace KRFCommon.Context
+﻿namespace KRFCommon.Context
 {
+    using System.Linq;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.Extensions.Primitives;
+
     public class TokenProvider : ITokenProvider
     {
         public TokenProvider( IHttpContextAccessor httpContextAccessor, string tokenIdentifier )
