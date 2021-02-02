@@ -1,10 +1,11 @@
-﻿using FluentValidation;
-using KRFCommon.CQRS.Command;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace KRFCommon.CQRS.Validator
+﻿namespace KRFCommon.CQRS.Validator
 {
+    using System.Linq;
+    using System.Threading.Tasks;
+    using FluentValidation;
+
+    using KRFCommon.CQRS.Command;
+
     public class KRFValidator<TInput>: AbstractValidator<TInput> where TInput: class
     {
         public KRFValidator()
@@ -12,7 +13,7 @@ namespace KRFCommon.CQRS.Validator
             this.CascadeMode = CascadeMode.Stop;
         }
 
-        public async Task<CommandValidationError> CheckValidationAsync(TInput request)
+        public async Task<ICommandValidationError> CheckValidationAsync(TInput request)
         {           
             var validationResult = await this.ValidateAsync(request);
 
