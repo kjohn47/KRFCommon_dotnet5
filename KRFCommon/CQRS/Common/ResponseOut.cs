@@ -1,6 +1,6 @@
 ﻿namespace KRFCommon.CQRS.Common
 {
-    public class ResponseOut<Toutput> : IResponseOut<Toutput> where Toutput : class
+    public class ResponseOut<Toutput> : IResponseOut<Toutput> where Toutput : ICQRSResponse
     {
         protected ResponseOut(Toutput result)
         {

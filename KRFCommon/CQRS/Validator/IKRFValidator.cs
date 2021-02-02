@@ -1,10 +1,11 @@
-﻿using KRFCommon.CQRS.Command;
-using System.Threading.Tasks;
-
-namespace KRFCommon.CQRS.Validator
+﻿namespace KRFCommon.CQRS.Validator
 {
+    using System.Threading.Tasks;
+
+    using KRFCommon.CQRS.Command;
+
     public interface IKRFValidator<TInput>
     {
-        public Task<CommandValidationError> CheckValidationAsync(TInput request);
+        public Task<ICommandValidationError> CheckValidationAsync(TInput request);
     }
 }

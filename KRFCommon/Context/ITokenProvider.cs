@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace KRFCommon.Context
+﻿namespace KRFCommon.Context
 {
     public interface ITokenProvider
     {

@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
-
-namespace KRFCommon.Swagger
+﻿namespace KRFCommon.Swagger
 {
+    using System.Collections.Generic;
+    using Microsoft.AspNetCore.Builder;
+    using Microsoft.Extensions.DependencyInjection;
+
     public static class SwaggerInit
     {
         public static void ServiceInit(IServiceCollection services, string AppName, string tokenIdentifier)

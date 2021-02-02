@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
-
-namespace KRFCommon.Context
+﻿namespace KRFCommon.Context
 {
+    using System.ComponentModel;
+
     public enum Claims
     {
         [Description(Policies.Admin)]

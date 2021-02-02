@@ -1,11 +1,12 @@
-﻿using KRFCommon.CQRS.Common;
-using System.Threading.Tasks;
-
-namespace KRFCommon.CQRS.Query
+﻿namespace KRFCommon.CQRS.Query
 {
+    using System.Threading.Tasks;
+
+    using KRFCommon.CQRS.Common;
+
     public interface IQuery<in Tinput, Toutput>
-        where Tinput : class
-        where Toutput : class
+        where Tinput : IQueryRequest
+        where Toutput : IQueryResponse
     {
         Task<IResponseOut<Toutput>> QueryAsync(Tinput request);
     }
