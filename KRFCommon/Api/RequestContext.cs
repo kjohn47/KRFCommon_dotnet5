@@ -4,6 +4,6 @@
     {
         public bool EnableRead { get; set; }
         public bool MemBufferOnly  { get; set; }
-        public string BufferSize  { get; set; }
+        public int BufferSize  { get; set; }
 }
 }
