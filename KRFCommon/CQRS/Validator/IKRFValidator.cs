@@ -6,6 +6,6 @@
 
     public interface IKRFValidator<TInput>
     {
-        public Task<ICommandValidationError> CheckValidationAsync(TInput request);
+        public Task<ICommandValidationError> CheckValidationAsync( TInput request );
     }
 }

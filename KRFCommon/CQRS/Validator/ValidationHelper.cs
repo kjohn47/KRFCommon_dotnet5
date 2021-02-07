@@ -10,17 +10,17 @@
         public static ErrorOut GenerateError( string errorMessage, string errorProperty, string errorCode = "" )
         {
             HttpStatusCode code = HttpStatusCode.BadRequest;
-            if (!string.IsNullOrEmpty(errorCode))
+            if ( !string.IsNullOrEmpty( errorCode ) )
             {
                 object errorParseOut;
-                Enum.TryParse(typeof(HttpStatusCode), errorCode, out errorParseOut);
-                if( errorParseOut != null )
+                Enum.TryParse( typeof( HttpStatusCode ), errorCode, out errorParseOut );
+                if ( errorParseOut != null )
                 {
-                    code = (HttpStatusCode)errorParseOut;
+                    code = ( HttpStatusCode ) errorParseOut;
                 }
             }
 
-            return new ErrorOut(code, errorMessage, ResponseErrorType.Validation, errorProperty);
+            return new ErrorOut( code, errorMessage, ResponseErrorType.Validation, errorProperty );
         }
     }
 }

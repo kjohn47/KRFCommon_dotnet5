@@ -3,20 +3,20 @@
     using System.Runtime.Serialization;
     using System.Text.Json.Serialization;
 
-    [JsonConverter(typeof(JsonStringEnumConverter))]
+    [JsonConverter( typeof( JsonStringEnumConverter ) )]
     public enum ResponseErrorType
     {
-        [EnumMember(Value = "Unknown")]
+        [EnumMember( Value = "Unknown" )]
         Unknown,
-        [EnumMember(Value = "Database")]
+        [EnumMember( Value = "Database" )]
         Database,
-        [EnumMember(Value = "Proxy")]
+        [EnumMember( Value = "Proxy" )]
         Proxy,
-        [EnumMember(Value = "Application")]
+        [EnumMember( Value = "Application" )]
         Application,
-        [EnumMember(Value = "Validation")]
+        [EnumMember( Value = "Validation" )]
         Validation,
-        [EnumMember(Value = "Exception")]
+        [EnumMember( Value = "Exception" )]
         Exception
     }
 }

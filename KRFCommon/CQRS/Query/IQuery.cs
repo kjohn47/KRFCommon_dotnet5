@@ -8,6 +8,6 @@
         where Tinput : IQueryRequest
         where Toutput : IQueryResponse
     {
-        Task<IResponseOut<Toutput>> QueryAsync(Tinput request);
+        Task<IResponseOut<Toutput>> QueryAsync( Tinput request );
     }
 }
