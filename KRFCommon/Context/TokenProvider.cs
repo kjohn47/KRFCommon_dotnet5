@@ -1,6 +1,7 @@
 ﻿namespace KRFCommon.Context
 {
     using System.Linq;
+
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Primitives;
 
@@ -11,8 +12,8 @@
             this.Token = "";
             var httpContext = httpContextAccessor.HttpContext;
             StringValues tokenData;
-            httpContext.Request.Headers.TryGetValue(tokenIdentifier, out tokenData);
-            if( tokenData.Count > 0 )
+            httpContext.Request.Headers.TryGetValue( tokenIdentifier, out tokenData );
+            if ( tokenData.Count > 0 )
             {
                 this.Token = tokenData.First();
             }
