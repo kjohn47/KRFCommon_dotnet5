@@ -2,14 +2,14 @@
 {
     using KRFCommon.CQRS.Common;
 
-    public class CommandValidationError: ICommandValidationError
+    public class CommandValidationError : ICommandValidationError
     {
         public CommandValidationError()
         {
             this.hasError = false;
         }
 
-        public CommandValidationError(ErrorOut error ) 
+        public CommandValidationError( ErrorOut error )
         {
             this.hasError = true;
             this.error = error;
@@ -21,7 +21,7 @@
 
         public ErrorOut GetError()
         {
-            if(this.hasError)
+            if ( this.hasError )
             {
                 return error;
             }
