@@ -4,11 +4,11 @@
 
     public enum Claims
     {
-        [Description(Policies.Admin)]
+        [Description( Policies.Admin )]
         Admin,
-        [Description(Policies.User)]
+        [Description( Policies.User )]
         User,
-        [Description(Policies.NotLogged)]
+        [Description( Policies.NotLogged )]
         NotLogged
     }
     public static class Policies
