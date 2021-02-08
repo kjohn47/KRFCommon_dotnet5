@@ -11,7 +11,11 @@
         {
             var cacheSettings = settings ?? new MemoryCacheSettingsBase();
 
-            services.AddSingleton( ( TSettings ) cacheSettings );
+            if ( settings != null )
+            {
+                services.AddSingleton( settings );
+            }
+
             services.AddMemoryCache( x =>
             {
                 x.ExpirationScanFrequency = new TimeSpan(
