@@ -1,17 +1,19 @@
 ﻿namespace KRFCommon.MemoryCache
 {
-    public class MemoryCacheSettingsBase
+    using System.Collections.Generic;
+
+    public class KRFMemoryCacheSettings
     {
         private const int _defaultCleanupInterval = 10;
 
-        public MemoryCacheSettingsBase()
+        public KRFMemoryCacheSettings()
         { }
 
-        private MemoryCacheCleanup _cacheCleanupInterval;
+        private KRFMemoryCacheCleanup _cacheCleanupInterval;
 
-        public MemoryCacheSize MemoryCacheSize { get; set; }
+        public KRFMemoryCacheSize MemoryCacheSize { get; set; }
 
-        public MemoryCacheCleanup CacheCleanupInterval
+        public KRFMemoryCacheCleanup CacheCleanupInterval
         {
             get
             {
@@ -20,7 +22,7 @@
                     return this._cacheCleanupInterval;
                 }
 
-                this._cacheCleanupInterval = new MemoryCacheCleanup
+                this._cacheCleanupInterval = new KRFMemoryCacheCleanup
                 {
                     Minutes = _defaultCleanupInterval
                 };
@@ -33,5 +35,7 @@
                 this._cacheCleanupInterval = value;
             }
         }
+
+        public IDictionary<string, KRFCachedKeySettings> CachedKeySettings { get; set; }
     }
 }
