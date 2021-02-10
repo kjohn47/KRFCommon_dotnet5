@@ -42,7 +42,44 @@ app.SwaggerConfigure( ApiName );
 
 
 - in-memory cache
- -> Dependency: services.InjectMemoryCache( configuration ) - using KRFCommon.MemoryCache
- -> configuration will be injected as singleton
- -> you can pass any configuration that extends MemoryCacheSettingsBase
- -> if no configuration is passed, default MemoryCacheSettingsBase is created with cleanup interval of 10 minutes
+ -> using KRFCommon.MemoryCache
+ -> configuration sample: (constant key for appsettings.json - KRFApiSettings.MemoryCacheSettings_Key)
+
+ "KRFMemoryCacheSettings": {
+    "CacheCleanupInterval": {
+      "Hours": 0, 
+      "Minutes": 30,
+      "Seconds": 0
+    },
+    "CachedKeySettings": {
+      "SETTINGS_KEY": {
+        "RemoveHours": 0,
+        "RemoveMinutes": 60,
+        "RemoveSeconds": 0
+      }
+    }
+  }
+
+ configuration Class -> KRFMemoryCacheSettings
+
+ add to services: -> services.AddKRFMemoryCache( KRFMemoryCacheSettings object/null ); 
+
+ if no settings are passed, default values are used: 10 minutes remove refresh and 60 minutes for each cached item.
+
+ * Implementations:
+
+ add dependency to constructor -> IKRFMemoryCache _memoryCache;
+
+ Get cached item or update from async query lambda -> 
+ 
+ T value = await this._memoryCache.GetCachedItemAsync<T>(Key: string, () => Task<T> GetValues() : Func, settings_key: string/null)
+
+ Get cached item or update from query lambda -> 
+
+ T value = this._memoryCache.GetCachedItem<T>(Key: string, () => Task<T> GetValues() : Func, settings_key: string/null)
+
+ If no settings key is defined, key will be used instead to get the settings.
+
+ If there is no settings defined, default 60 min for expiration will be set
+
+ KRFMemoryCache is an extension of MemoryCache

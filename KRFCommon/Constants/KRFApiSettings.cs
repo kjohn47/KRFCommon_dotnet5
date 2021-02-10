@@ -8,6 +8,6 @@
         public const string KestrelConfiguration_Key = "KestrelConfiguration";
         public const string RequestContext_Key = "RequestContext";
         public const string KRFDatabases_Key = "KRFDatabases";
-        public const string MemoryCacheSettings_Key = "MemoryCacheSettings";
+        public const string MemoryCacheSettings_Key = "KRFMemoryCacheSettings";
     }
 }
