@@ -6,7 +6,7 @@
 
     public static class InjectMemoryCacheHelper
     {
-        public static void InjectMemoryCache<TSettings>( this IServiceCollection services, TSettings settings )
+        public static IServiceCollection InjectMemoryCache<TSettings>( this IServiceCollection services, TSettings settings )
             where TSettings : MemoryCacheSettingsBase
         {
             var cacheSettings = settings ?? new MemoryCacheSettingsBase();
@@ -36,6 +36,8 @@
                     }
                 }
             } );
+
+            return services;
         }
     }
 }

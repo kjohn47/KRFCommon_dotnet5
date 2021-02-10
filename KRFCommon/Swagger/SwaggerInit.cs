@@ -7,7 +7,7 @@
 
     public static class SwaggerInitHelper
     {
-        public static void SwaggerInit( this IServiceCollection services, string AppName, string tokenIdentifier )
+        public static IServiceCollection SwaggerInit( this IServiceCollection services, string AppName, string tokenIdentifier )
         {
             services.AddSwaggerGen( option =>
              {
@@ -41,14 +41,18 @@
                      Description = string.Format( "{0} API Swagger", AppName )
                  } );
              } );
+
+            return services;
         }
 
-        public static void SwaggerConfigure( this IApplicationBuilder app, string AppName )
+        public static IApplicationBuilder SwaggerConfigure( this IApplicationBuilder app, string AppName )
         {
 
             app.UseSwagger();
 
             app.UseSwaggerUI( option => option.SwaggerEndpoint( string.Format( "/swagger/{0}/swagger.json", AppName ), AppName ) );
+
+            return app;
         }
     }
 }
