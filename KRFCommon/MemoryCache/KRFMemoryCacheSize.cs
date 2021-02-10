@@ -1,6 +1,6 @@
 ﻿namespace KRFCommon.MemoryCache
 {
-    public class MemoryCacheSize
+    public class KRFMemoryCacheSize
     {
         public int? MaxSize { get; set; }
 

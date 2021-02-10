@@ -3,21 +3,24 @@
     using System;
 
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
 
-    public static class InjectMemoryCacheHelper
+    public static class KRFMemoryCacheServiceHelper
     {
-        public static IServiceCollection InjectMemoryCache<TSettings>( this IServiceCollection services, TSettings settings )
-            where TSettings : MemoryCacheSettingsBase
+        public static IServiceCollection AddKRFMemoryCache( this IServiceCollection services, KRFMemoryCacheSettings settings = null )
         {
-            var cacheSettings = settings ?? new MemoryCacheSettingsBase();
-
-            if ( settings != null )
+            if ( services == null )
             {
-                services.AddSingleton( settings );
+                throw new ArgumentNullException( nameof( services ) );
             }
 
-            services.AddMemoryCache( x =>
-            {
+            var cacheSettings = settings ?? new KRFMemoryCacheSettings();
+
+            services.AddOptions();
+
+            services.TryAdd( ServiceDescriptor.Singleton<IKRFMemoryCache, KRFMemoryCache>() );
+
+            services.Configure<KRFMemoryCacheOptions>( x => {
                 x.ExpirationScanFrequency = new TimeSpan(
                     cacheSettings.CacheCleanupInterval.Hours,
                     cacheSettings.CacheCleanupInterval.Minutes,
@@ -35,6 +38,8 @@
                         x.SizeLimit = cacheSettings.MemoryCacheSize.CompactionPercentage.Value;
                     }
                 }
+
+                x.CachedKeySettings = settings.CachedKeySettings;
             } );
 
             return services;
