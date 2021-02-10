@@ -6,7 +6,7 @@
 
     public static class KRFDbContextInjectHelper
     {
-        public static void InjectDBContext<TDBContext>( this IServiceCollection services, KRFDatabaseConfig settings, string migrationAssembly )
+        public static IServiceCollection InjectDBContext<TDBContext>( this IServiceCollection services, KRFDatabaseConfig settings, string migrationAssembly )
             where TDBContext : DbContext
         {
             var connectionString = settings.ConnectionString;
@@ -20,12 +20,16 @@
                              x.MigrationsAssembly( migrationAssembly );
                      } );
              } );
+
+            return services;
         }
 
-        public static void ConfigureAutomaticMigrations<TDBContext>( this IServiceScope serviceScope )
+        public static IServiceScope ConfigureAutomaticMigrations<TDBContext>( this IServiceScope serviceScope )
             where TDBContext : DbContext
         {
             serviceScope.ServiceProvider.GetService<TDBContext>().Database.Migrate();
+
+            return serviceScope;
         }
     }
 }

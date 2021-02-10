@@ -14,7 +14,7 @@
 
     public static class KRFExceptionHandlerMiddleware
     {
-        public static void KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )
         {
             app.UseExceptionHandler( b => b.Run( async c =>
               {
@@ -53,6 +53,8 @@
                   string errorMessage = JsonSerializer.Serialize( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
                   await c.Response.WriteAsync( errorMessage );
               } ) );
+
+            return app;
         }
     }
 }

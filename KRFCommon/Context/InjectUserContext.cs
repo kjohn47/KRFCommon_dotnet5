@@ -10,10 +10,9 @@ namespace KRFCommon.Context
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.IdentityModel.Tokens;
 
-
     public static class InjectUserContextHelper
     {
-        public static void InjectUserContext( this IServiceCollection services, string tokenIdentifier, string key )
+        public static IServiceCollection InjectUserContext( this IServiceCollection services, string tokenIdentifier, string key )
         {
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<ITokenProvider, TokenProvider>( s => new TokenProvider( s.GetService<IHttpContextAccessor>(), tokenIdentifier ) );
@@ -80,6 +79,8 @@ namespace KRFCommon.Context
                      policy.RequireClaim( "UserRole", Claims.User.ToString(), Claims.Admin.ToString() );
                  } );
              } );
+
+            return services;
         }
     }
 }
