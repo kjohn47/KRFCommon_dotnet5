@@ -9,7 +9,7 @@
 
     public static class AuthConfigureHelper
     {
-        public static void AuthConfigure( this IApplicationBuilder app )
+        public static IApplicationBuilder AuthConfigure( this IApplicationBuilder app )
         {
             app.UseStatusCodePages( async ctx =>
              {
@@ -38,6 +38,7 @@
 
             app.UseAuthorization();
 
+            return app;
         }
     }
 }
