@@ -1,4 +1,4 @@
-KRFCommon
+KRFCommon package - common parts of KRFApi
 
 Important during service dev:
 	install swagger
@@ -10,41 +10,133 @@ This nuget has all common parts to be used on microservices for KJohn React Fram
 
 
 - user context + user authorization and authentcation config
+```
 services.InjectUserContext( TokenIdentifier, TokenKey );
 app.AuthConfigure();
-
+```
 
 - query and command abstractions
-IQuery<TReq, TResp>
-ICommand<TReq, TResp>
+```
+YourQuery IQuery<TReq, TResp>
+where TReq is IQueryRequest
+where TResp is IQueryResponse -> ICQRSResponse
+
+Query method:
+-> Task<IResponseOut<Toutput>> QueryAsync( TReq request )
+
+IResponseOut<T>
+- T Result
+- ErrorOut Error
+
+ErrorOut - error type that is handled by api
+
+YourCommand ICommand<TReq, TResp>
+where TReq is ICommandRequest
+where TResp is ICommandResponse -> ICQRSResponse
+
+Command methods:
+-> Task<ICommandValidationError> ExecuteValidationAsync( TReq request );
+-> Task<IResponseOut<TResp>> ExecuteCommandAsync( TReq request );
+
+Validator (fluentValidator)
+YourValidator : KRFValidator<TReq>, IKRFValidator<TReq>
+
+result = IKRFValidator<TReq> validator -> await validator.CheckValidationAsync( TReq request );
+Will retun output for command ExecuteValidationAsync
+Will return output of type: ICommandValidationError -> ErrorOut GetError();
+
+```
+
+- Common controller:
+```
+ YourController : KRFController
+
+ Implements:
+ async Task<IActionResult> ExecuteAsyncQuery<Tinput, Toutput>( Tinput request, IQuery<Tinput, Toutput> query )
+ async Task<IActionResult> ExecuteAsyncCommand<Tinput, Toutput>( Tinput request, ICommand<Tinput, Toutput> command, Func<Toutput, IActionResult> changeAction = null )
+
+```
 
 
 - sql EF query error and dependency injection and migration configuration helper
-services.InjectDBContext<DBContextType>( KRFDatabaseConfig config, "MigrationAssembly" );
+```
+On KRFApi from template, use App -> Injection -> AppDBContextInjection
+services.InjectDBContext<DBContextType>( KRFDatabases config );
+
 serviceScope.ConfigureAutomaticMigrations<DBContextType>();
 
+KRFDatabases object includes settings for configuring the context
 
-- exception handler middleware
-app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, ApiName, TokenIdentifier );
+"KRFDatabases": {
+    "Databases": {
+      "DBContextType": {
+        "ConnectionString": "Server=(localdb)\\mssqllocaldb;Database=DBContextDB;AttachDbFilename=DBFiles\\DBContextDB.mdf;Trusted_Connection=True;MultipleActiveResultSets=true",
+        "UseLocalDB": true,
+        "ApiDBFolder": ""
+      }
+    },
+    "EnableAutomaticMigration": true,
+    "MigrationAssembly": "KRFTemplateApi.Infrastructure"
+  }
+
+Databases -> dictionary of settings for context
+"DBContextType" -> Key with same name as context class
+"ConnectionString" -> MS SQL connection string
+"UseLocalDB": set to true to auto complete AttachDbFilename with api (WebApi) path (connection string must have valid relative path). Send as null to use your own connection string
+"ApiDBFolder": set absolute path for database file (UseLocalDB = false to enable this) - (connection string must have valid relative path or filename)
+
+"EnableAutomaticMigration" -> flag can be used on KRFApi to prevent Migration -> ConfigureAutomaticMigrations
+"MigrationAssembly" -> Project namespace where migrations will be generated -> recomended Infrastructure
 
 
-** when using middleware - KRFBodyRewindMiddleware
-app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, ApiName, TokenIdentifier, BufferSize );
-
+DatabaseQueryHandlerMethod : QueryCommand
+When the return result is just to express success or error, like additions or updates to database
+```
 
 - middlewares, 
-app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize, MemBufferOnly );
+```
+- Allow request to be readed again by api for logs
+* app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize, MemBufferOnly );
+```
 
+- exception handler middleware
+```
+KRFExceptionHandlerMiddleware:
+
+This will activate midleware app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize, MemBufferOnly ) on enableReadRequest = true
+
+Log user request and exception to system events:
+
+app.KRFExceptionHandlerMiddlewareConfigure( 
+                    ILoggerFactory loggerFactory, 
+                    bool logErrors, 
+                    string apiName, 
+                    string tokenIdentifier, 
+                    bool enableReadRequest, 
+                    bool reqBufferOnly, 
+                    int? reqBufferSize = null )
+
+Log exception to system events:
+
+app.KRFExceptionHandlerMiddlewareConfigure( ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier );
+
+```
 
 - swagger
+```
 services.SwaggerInit( ApiName, TokenKey );
 app.SwaggerConfigure( ApiName );
+```
 
 
-- in-memory cache
+- In-memory cache
+```
  -> using KRFCommon.MemoryCache
- -> configuration sample: (constant key for appsettings.json - KRFApiSettings.MemoryCacheSettings_Key)
+```
 
+ -> configuration sample: (constant key for appsettings.json - KRFApiSettings.MemoryCacheSettings_Key)
+ 
+```
  "KRFMemoryCacheSettings": {
     "CacheCleanupInterval": {
       "Hours": 0, 
@@ -59,27 +151,48 @@ app.SwaggerConfigure( ApiName );
       }
     }
   }
-
+```
+```
  configuration Class -> KRFMemoryCacheSettings
-
+```
+```
  add to services: -> services.AddKRFMemoryCache( KRFMemoryCacheSettings object/null ); 
-
+```
  if no settings are passed, default values are used: 10 minutes remove refresh and 60 minutes for each cached item.
 
  * Implementations:
-
+```
  add dependency to constructor -> IKRFMemoryCache _memoryCache;
-
- Get cached item or update from async query lambda -> 
- 
- T value = await this._memoryCache.GetCachedItemAsync<T>(Key: string, () => Task<T> GetValues() : Func, settings_key: string/null)
+```
 
  Get cached item or update from query lambda -> 
+```
+this._memoryCache...
 
- T value = this._memoryCache.GetCachedItem<T>(Key: string, () => Task<T> GetValues() : Func, settings_key: string/null)
+--Base
+ T value = GetCachedItem<T>( string key, Func<T> queryFunc )
+ T value = GetCachedItem<T>( string key, Func<T> queryFunc, string settingsKey )
+ T value = GetCachedItem<T>( string key, Func<T> queryFunc, bool preventCacheUpdate )
+ T value = GetCachedItem<T>( string key, Func<T> queryFunc, string settingsKey, bool preventCacheUpdate )
 
- If no settings key is defined, key will be used instead to get the settings.
+--Return Value with cache miss flag KRFCacheResult<T>
 
- If there is no settings defined, default 60 min for expiration will be set
+ KRFCacheResult<T> value = GetCachedItemWithMissReturn<T>( string key, Func<T> queryFunc )
+ KRFCacheResult<T> value = GetCachedItemWithMissReturn<T>( string key, Func<T> queryFunc, string settingsKey )
+ KRFCacheResult<T> value = GetCachedItemWithMissReturn<T>( string key, Func<T> queryFunc, bool preventCacheUpdate )
+ KRFCacheResult<T> value = GetCachedItemWithMissReturn<T>( string key, Func<T> queryFunc, string settingsKey, bool preventCacheUpdate )
+
+ --Pass handler on method
+ T value = GetCachedItemWithHandler<T>( string key, Func<T> queryFunc, Func<KRFCacheResult<T>, T> handler )
+ T value = GetCachedItemWithHandler<T>( string key, Func<T> queryFunc, string settingsKey, Func<KRFCacheResult<T>, T> handler )
+ T value = GetCachedItemWithHandler<T>( string key, Func<T> queryFunc, bool preventCacheUpdate, Func<KRFCacheResult<T>, T> handler )
+ T value = GetCachedItemWithHandler<T>( string key, Func<T> queryFunc, string settingsKey, bool preventCacheUpdate, Func<KRFCacheResult<T>, T> handler )
+
+```
+
+All of the above have async Task<T> version, that terminates with Async -> 
+```
+ T value = await this._memoryCache.GetCachedItemAsync<T>(Key: string, () => Task<T> GetValues() : Func)
+```
 
  KRFMemoryCache is an extension of MemoryCache

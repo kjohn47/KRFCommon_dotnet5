@@ -14,7 +14,26 @@
 
     public static class KRFExceptionHandlerMiddleware
     {
-        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, bool enableReadRequest, bool reqBufferOnly, int? reqBufferSize = null )
+        {
+            if( logErrors && enableReadRequest )
+            {
+                app.UseMiddleware<KRFBodyRewindMiddleware>( reqBufferSize, reqBufferOnly );
+            }
+
+            app.KRFExceptionHandlerMiddlewareConfigureInternal( loggerFactory, logErrors, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+
+            return app;
+        }
+
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier )
+        {
+            app.KRFExceptionHandlerMiddlewareConfigureInternal( loggerFactory, logErrors, apiName, tokenIdentifier );
+
+            return app;
+        }
+
+        private static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigureInternal( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )
         {
             app.UseExceptionHandler( b => b.Run( async c =>
               {

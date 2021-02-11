@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     public class KRFDatabases
     {
-        public IEnumerable<KRFDatabaseConfig> Databases { get; set; }
+        public IDictionary<string, KRFDatabaseConfig> Databases { get; set; }
         public string MigrationAssembly { get; set; }
         public bool EnableAutomaticMigration { get; set; }
     }
