@@ -1,5 +1,6 @@
 ﻿namespace KRFCommon.Swagger
 {
+    using System;
     using System.Collections.Generic;
 
     using Microsoft.AspNetCore.Builder;
@@ -9,6 +10,16 @@
     {
         public static IServiceCollection SwaggerInit( this IServiceCollection services, string AppName, string tokenIdentifier )
         {
+            if ( string.IsNullOrEmpty( tokenIdentifier ) )
+            {
+                throw new Exception( "Missing token identifier setting" );
+            }
+
+            if ( string.IsNullOrEmpty( AppName ) )
+            {
+                throw new Exception( "Missing App Name setting" );
+            }
+
             services.AddSwaggerGen( option =>
              {
                  option.AddSecurityDefinition( "Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
