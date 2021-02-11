@@ -1,5 +1,6 @@
 namespace KRFCommon.Context
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
@@ -14,6 +15,16 @@ namespace KRFCommon.Context
     {
         public static IServiceCollection InjectUserContext( this IServiceCollection services, string tokenIdentifier, string key )
         {
+            if ( string.IsNullOrEmpty( tokenIdentifier ) )
+            {
+                throw new Exception( "Missing token identifier setting" );
+            }
+
+            if ( string.IsNullOrEmpty( key ) )
+            {
+                throw new Exception( "Missing token key setting" );
+            }
+
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<ITokenProvider, TokenProvider>( s => new TokenProvider( s.GetService<IHttpContextAccessor>(), tokenIdentifier ) );
             services.AddScoped<IUserContext, UserContext>( s => new UserContext( s.GetService<ITokenProvider>(), key ) );

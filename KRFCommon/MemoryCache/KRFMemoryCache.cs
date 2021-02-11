@@ -9,6 +9,10 @@
 
     public class KRFMemoryCache : MemoryCache,  IKRFMemoryCache
     {
+        private readonly IDictionary<string, KRFCachedKeySettings> CachedKeySettings;
+
+        private const int DefaultCacheIntervalMinutes = 60;
+
         public KRFMemoryCache( Microsoft.Extensions.Options.IOptions<KRFMemoryCacheOptions> options ) : base( options )
         {
             if ( options != null && options.Value != null && options.Value.CachedKeySettings != null)
@@ -33,11 +37,97 @@
             }
         }
 
-        private readonly IDictionary<string, KRFCachedKeySettings> CachedKeySettings;
+        public TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc ) where TResult : class
+        {
+            return this.GetCachedItem<TResult>( key, queryFunc, null, false );
+        }
 
-        private const int DefaultCacheIntervalMinutes = 60;
+        public TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, string settingsKey ) where TResult : class
+        {
+            return this.GetCachedItem<TResult>( key, queryFunc, settingsKey, false );
+        }
 
-        public TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, string settingsKey = null, bool preventCacheUpdate = false )
+        public TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, bool preventCacheUpdate ) where TResult : class
+        {
+            return this.GetCachedItem<TResult>( key, queryFunc, null, preventCacheUpdate );
+        }
+
+        public Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc ) where TResult : class
+        {
+            return this.GetCachedItemAsync<TResult>( key, queryFunc, null, false );
+        }
+
+        public Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey ) where TResult : class
+        {
+            return this.GetCachedItemAsync<TResult>( key, queryFunc, settingsKey, false );
+        }
+
+        public Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, bool preventCacheUpdate ) where TResult : class
+        {
+            return this.GetCachedItemAsync<TResult>( key, queryFunc, null, preventCacheUpdate );
+        }
+
+        public KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc ) where TResult : class
+        {
+            return this.GetCachedItemWithMissReturn<TResult>( key, queryFunc, null, false );
+        }
+
+        public KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, string settingsKey ) where TResult : class
+        {
+            return this.GetCachedItemWithMissReturn<TResult>( key, queryFunc, settingsKey, false );
+        }
+
+        public KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, bool preventCacheUpdate ) where TResult : class
+        {
+            return this.GetCachedItemWithMissReturn<TResult>( key, queryFunc, null, preventCacheUpdate );
+        }
+
+        public Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc ) where TResult : class
+        {
+            return this.GetCachedItemWithMissReturnAsync<TResult>( key, queryFunc, null, false );
+        }
+
+        public Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey ) where TResult : class
+        {
+            return this.GetCachedItemWithMissReturnAsync<TResult>( key, queryFunc, settingsKey, false );
+        }
+
+        public Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, bool preventCacheUpdate ) where TResult : class
+        {
+            return this.GetCachedItemWithMissReturnAsync<TResult>( key, queryFunc, null, preventCacheUpdate );
+        }
+
+        public TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            return this.GetCachedItemWithHandler<TResult>(key, queryFunc, null, false, handler );
+        }
+
+        public TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, string settingsKey, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            return this.GetCachedItemWithHandler<TResult>( key, queryFunc, settingsKey, false, handler );
+        }
+
+        public TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            return this.GetCachedItemWithHandler<TResult>( key, queryFunc, null, preventCacheUpdate, handler );
+        }
+
+        public Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            return this.GetCachedItemWithHandlerAsync<TResult>( key, queryFunc, null, false, handler );
+        }
+
+        public Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            return this.GetCachedItemWithHandlerAsync<TResult>( key, queryFunc, settingsKey, false, handler );
+        }
+
+        public Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            return this.GetCachedItemWithHandlerAsync<TResult>( key, queryFunc, null, preventCacheUpdate, handler );
+        }
+
+        public TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, string settingsKey, bool preventCacheUpdate )
         where TResult : class
         {
             TResult cachedValue;
@@ -52,7 +142,7 @@
             return cachedValue;
         }
 
-        public async Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey = null, bool preventCacheUpdate = false )
+        public async Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, bool preventCacheUpdate )
             where TResult : class
         {
             TResult cachedValue;
@@ -67,7 +157,7 @@
             return cachedValue;
         }
 
-        public KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, string settingsKey = null, bool preventCacheUpdate = false ) where TResult : class
+        public KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, string settingsKey, bool preventCacheUpdate ) where TResult : class
         {
             TResult cachedValue;
 
@@ -89,7 +179,7 @@
             };
         }
 
-        public async Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey = null, bool preventCacheUpdate = false ) where TResult : class
+        public async Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, bool preventCacheUpdate ) where TResult : class
         {
             TResult cachedValue;
 
@@ -109,6 +199,50 @@
                 Result = cachedValue,
                 CacheMiss = false
             };
+        }
+
+        public TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, string settingsKey, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            TResult cachedValue;
+
+            if ( !this.GetAndValidateCacheValue( key, out cachedValue ) )
+            {
+                var response = queryFunc();
+
+                return handler( new KRFCacheResult<TResult>
+                {
+                    Result = preventCacheUpdate ? response : this.SetCacheValue( response, key, settingsKey ),
+                    CacheMiss = true
+                } );
+            }
+
+            return handler( new KRFCacheResult<TResult>
+                {
+                    Result = cachedValue,
+                    CacheMiss = false
+                } );
+        }
+
+        public async Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class
+        {
+            TResult cachedValue;
+
+            if ( !this.GetAndValidateCacheValue( key, out cachedValue ) )
+            {
+                var response = await queryFunc();
+
+                return handler( new KRFCacheResult<TResult>
+                {
+                    Result = preventCacheUpdate ? response : this.SetCacheValue( response, key, settingsKey ),
+                    CacheMiss = true
+                } );
+            }
+
+            return handler( new KRFCacheResult<TResult>
+            {
+                Result = cachedValue,
+                CacheMiss = false
+            } );
         }
 
         private bool GetAndValidateCacheValue<TResult>( string key, out TResult cachedValue )
