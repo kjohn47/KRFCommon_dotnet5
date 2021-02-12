@@ -22,7 +22,7 @@
             this._logger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", apiName, "Request/Response" ) );
             this._tokenIdentifier = tokenIdentifier;
         }
-        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier, int? buffer )
+        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier, int? buffer = null )
         {
             this._next = next;
             this._buffer = buffer;
@@ -47,6 +47,7 @@
                 //log request
                 var requestToken = context.Request.Headers[ this._tokenIdentifier ];
                 var requestUrl = context.Request.Path + context.Request.QueryString;
+                var requestTime = DateTime.Now.ToString( KRFConstants.TimeStampFormat );
                 string response;
                 string request;
 
@@ -54,12 +55,16 @@
                     context.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) &&
                     !context.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) )
                 {
-                    var reqBody = context.Request.Body;
+                    var reqBody = new MemoryStream();
+                    context.Request.Body.Seek( 0, SeekOrigin.Begin );
+                    await context.Request.Body.CopyToAsync( reqBody );
+                    context.Request.Body.Seek( 0, SeekOrigin.Begin );
                     reqBody.Seek( 0, SeekOrigin.Begin );
-                    var reqReader = new StreamReader( reqBody );
-                    request = await reqReader.ReadToEndAsync();
-                    reqReader.Dispose();
-                    reqBody.Seek( 0, SeekOrigin.Begin );
+
+                    using ( var reqReader = new StreamReader( reqBody ) )
+                    {
+                        request = await reqReader.ReadToEndAsync();
+                    }
                 }
                 else
                 {
@@ -87,17 +92,19 @@
                 }
                 else
                 {
-                    var respReader = new StreamReader( respBody );
-                    response = await respReader.ReadToEndAsync();
-                    respReader.Dispose();
+                    using ( var respReader = new StreamReader( respBody ) )
+                    {
+                        response = await respReader.ReadToEndAsync();
+                    }
                     context.Response.Body = originalBody;
-                    await respBody.DisposeAsync();
                 }
 
                 var log = new StringBuilder();
                 log.Append( "\n------------------------------------------------------" );
                 log.Append( "\n                     Request Log:" );
                 log.Append( "\n------------------------------------------------------" );
+                log.Append( "\nTimeStamp:" );
+                log.Append( requestTime );
                 log.Append( "\nRequest: " );
                 log.Append( requestUrl );
                 log.Append( "\nRequest Method: " );
@@ -109,6 +116,8 @@
                 log.Append( "\n\n------------------------------------------------------" );
                 log.Append( "\n                     Response Log:" );
                 log.Append( "\n------------------------------------------------------" );
+                log.Append( "\nTimeStamp:" );
+                log.Append( DateTime.Now.ToString( KRFConstants.TimeStampFormat ) );
                 log.Append( "\nResponse Body:\n" );
                 log.Append( response );
 

@@ -17,38 +17,44 @@
 
     public static class KRFExceptionHandlerMiddleware
     {
-        public static IApplicationBuilder KRFLogAndExceptionHandlerConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize )
+        public static IApplicationBuilder KRFLogAndExceptionHandlerConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize = null )
         {
             if ( enableLogs && enableReadRequest )
             {
-                app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize );
+                if ( reqBufferSize.HasValue )
+                    app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize );
+                else
+                    app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier );
             }
 
-            app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
 
             return app;
         }
 
-        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize )
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize = null )
         {
             if ( enableLogs && enableReadRequest )
             {
-                app.UseMiddleware<KRFBodyRewindMiddleware>( reqBufferSize );
+                if ( reqBufferSize.HasValue )
+                    app.UseMiddleware<KRFBodyRewindMiddleware>( reqBufferSize );
+                else
+                    app.UseMiddleware<KRFBodyRewindMiddleware>();
             }
 
-            app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
 
             return app;
         }
 
         public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier )
         {
-            app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, logErrors, apiName, tokenIdentifier, null );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, logErrors, apiName, tokenIdentifier, null );
 
             return app;
         }
 
-        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit )
+        private static IApplicationBuilder _KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit )
         {
             app.UseExceptionHandler( b => b.Run( async c =>
               {
@@ -62,14 +68,16 @@
                             !c.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) &&
                             c.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) )
                       {
-                          var body = c.Request.Body;
+                          var body = new MemoryStream();
+                          c.Request.Body.Seek( 0, SeekOrigin.Begin );
+                          await c.Request.Body.CopyToAsync( body );
+                          c.Request.Body.Seek( 0, SeekOrigin.Begin );
                           body.Seek( 0, SeekOrigin.Begin );
 
-                          var reqReader = new StreamReader( body );
-                          reqBody = await reqReader.ReadToEndAsync();
-                          reqReader.Dispose();
-
-                          body.Seek( 0, SeekOrigin.Begin );
+                          using ( var reqReader = new StreamReader( body ) )
+                          {
+                              reqBody = await reqReader.ReadToEndAsync();
+                          }
                       }
                       else
                       {
@@ -82,6 +90,8 @@
                       log.Append( "\n------------------------------------------------------" );
                       log.Append( "\n                     Request Log:" );
                       log.Append( "\n------------------------------------------------------" );
+                      log.Append( "\nTimeStamp:" );
+                      log.Append( DateTime.Now.ToString( KRFConstants.TimeStampFormat ) );
                       log.Append( "\nRequest: " );
                       log.Append( requestUrl );
                       log.Append( "\nRequest Method: " );
