@@ -95,17 +95,27 @@ When the return result is just to express success or error, like additions or up
 
 - middlewares, 
 ```
-- Allow request to be readed again by api for logs
-* app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize, MemBufferOnly );
+- Allow request to be readed/ enable request seek
+* app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize? or null );
+
+- Log Request and response on json communication: (already includes logic to enable seek of request so no need for KRFBodyRewindMiddleware when using)
+* app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize? or null );
 ```
 
 - exception handler middleware
 ```
-KRFExceptionHandlerMiddleware:
+Log Request/Response and Exceptions: -> This will enable app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize? or null ) on enableReadRequest = true
 
-This will activate midleware app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize, MemBufferOnly ) on enableReadRequest = true
+app.KRFExceptionHandlerMiddleware(
+                    ILoggerFactory loggerFactory, 
+                    bool logErrors, 
+                    string apiName, 
+                    string tokenIdentifier, 
+                    bool enableReadRequest, 
+                    int? reqBufferSize = null )
 
-Log user request and exception to system events:
+
+Log user request and exception to system events: -> This will activate midleware app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize ) on enableReadRequest = true
 
 app.KRFExceptionHandlerMiddlewareConfigure( 
                     ILoggerFactory loggerFactory, 
@@ -113,7 +123,6 @@ app.KRFExceptionHandlerMiddlewareConfigure(
                     string apiName, 
                     string tokenIdentifier, 
                     bool enableReadRequest, 
-                    bool reqBufferOnly, 
                     int? reqBufferSize = null )
 
 Log exception to system events:
