@@ -12,7 +12,7 @@
         {
             this._next = next;
         }
-        public KRFBodyRewindMiddleware( RequestDelegate next, int? buffer )
+        public KRFBodyRewindMiddleware( RequestDelegate next, int? buffer = null )
         {
             this._next = next;
             this._buffer = buffer;
