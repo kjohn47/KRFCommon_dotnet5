@@ -106,7 +106,7 @@ When the return result is just to express success or error, like additions or up
 ```
 Log Request/Response and Exceptions: -> This will enable app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize? or null ) on enableReadRequest = true
 
-app.KRFExceptionHandlerMiddleware(
+app.KRFLogAndExceptionHandlerConfigure(
                     ILoggerFactory loggerFactory, 
                     bool logErrors, 
                     string apiName, 
