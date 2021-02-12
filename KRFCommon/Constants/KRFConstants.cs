@@ -8,5 +8,6 @@
         public const string PostMethod = "POST";
         public const string PutMethod = "PUT";
         public const string DeleteMethod = "DELETE";
+        public const string TimeStampFormat = "yyyy-MM-ddTHH:mm:ss.fff";
     }
 }
