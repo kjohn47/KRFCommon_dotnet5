@@ -11,29 +11,44 @@
     using Microsoft.Extensions.Logging;
 
     using KRFCommon.CQRS.Common;
+    using System.Text;
+    using System;
+    using KRFCommon.Constants;
 
     public static class KRFExceptionHandlerMiddleware
     {
-        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, bool enableReadRequest, bool reqBufferOnly, int? reqBufferSize = null )
+        public static IApplicationBuilder KRFLogAndExceptionHandlerConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize )
         {
-            if( logErrors && enableReadRequest )
+            if ( enableLogs && enableReadRequest )
             {
-                app.UseMiddleware<KRFBodyRewindMiddleware>( reqBufferSize, reqBufferOnly );
+                app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize );
             }
 
-            app.KRFExceptionHandlerMiddlewareConfigureInternal( loggerFactory, logErrors, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+            app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+
+            return app;
+        }
+
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize )
+        {
+            if ( enableLogs && enableReadRequest )
+            {
+                app.UseMiddleware<KRFBodyRewindMiddleware>( reqBufferSize );
+            }
+
+            app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
 
             return app;
         }
 
         public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier )
         {
-            app.KRFExceptionHandlerMiddlewareConfigureInternal( loggerFactory, logErrors, apiName, tokenIdentifier );
+            app.KRFExceptionHandlerMiddlewareConfigure( loggerFactory, logErrors, apiName, tokenIdentifier, null );
 
             return app;
         }
 
-        private static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigureInternal( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit = null )
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit )
         {
             app.UseExceptionHandler( b => b.Run( async c =>
               {
@@ -41,34 +56,48 @@
                   if ( logErrors )
                   {
                       var requestToken = c.Request.Headers[ tokenIdentifier ];
-                      string reqBody = "";
-                      if ( c.Request.Body.CanSeek && ( logReqLimit == null || ( int ) logReqLimit >= c.Request.ContentLength ) )
+                      string reqBody;
+                      if ( c.Request.Body.CanSeek &&
+                            ( logReqLimit == null || ( c.Request.ContentLength != null && ( int ) logReqLimit >= c.Request.ContentLength ) ) &&
+                            !c.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) &&
+                            c.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) )
                       {
                           var body = c.Request.Body;
                           body.Seek( 0, SeekOrigin.Begin );
-                          string buffer = await new StreamReader( body ).ReadToEndAsync();
+
+                          var reqReader = new StreamReader( body );
+                          reqBody = await reqReader.ReadToEndAsync();
+                          reqReader.Dispose();
+
                           body.Seek( 0, SeekOrigin.Begin );
-                          reqBody = buffer;
                       }
                       else
                       {
-                          reqBody = "Could not read request body: Request reading disabled or content too long";
+                          reqBody = "Could not read request body: Get method or Request reading disabled or content too long";
                       }
                       var requestUrl = c.Request.Path + c.Request.QueryString;
-                      var appLogger = loggerFactory.CreateLogger( apiName );
-                      string reqLog = "\n------------------------------------------------------\n" +
-                                      "                     Request Log:\n" +
-                                      "------------------------------------------------------\n" +
-                                      "Request: " + requestUrl + " \n" +
-                                      "Request Method: " + c.Request.Method + "\n" +
-                                      "Request Token: " + requestToken + "\n" +
-                                      "Request Body: " + reqBody + "\n" +
-                                      "------------------------------------------------------\n" +
-                                      "                      Exception:\n" +
-                                      "------------------------------------------------------";
-                      appLogger.LogError( error.Error, reqLog + "\n" + error.Error.Message );
+                      var appLogger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", apiName, "Exceptions" ) );
+
+                      var log = new StringBuilder();
+                      log.Append( "\n------------------------------------------------------" );
+                      log.Append( "\n                     Request Log:" );
+                      log.Append( "\n------------------------------------------------------" );
+                      log.Append( "\nRequest: " );
+                      log.Append( requestUrl );
+                      log.Append( "\nRequest Method: " );
+                      log.Append( c.Request.Method );
+                      log.Append( "\nRequest Token: " );
+                      log.Append( requestToken );
+                      log.Append( "\nRequest Body:\n" );
+                      log.Append( reqBody );
+                      log.Append( "\n\n------------------------------------------------------" );
+                      log.Append( "\n                     Exception:" );
+                      log.Append( "\n------------------------------------------------------\n" );
+                      log.Append( error.Error.Message );
+
+                      appLogger.LogError( error.Error, log.ToString() );
                   }
-                  c.Response.ContentType = "application/json";
+                  c.Response.ContentType = KRFConstants.JsonContentUtf8Type;
                   string errorMessage = JsonSerializer.Serialize( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
                   await c.Response.WriteAsync( errorMessage );
               } ) );
