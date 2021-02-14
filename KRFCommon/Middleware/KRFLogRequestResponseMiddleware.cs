@@ -1,4 +1,4 @@
-﻿namespace KRFCommon.Handler
+﻿namespace KRFCommon.Middleware
 {
     using KRFCommon.Constants;
 
@@ -15,26 +15,26 @@
         private readonly int? _buffer;
         private readonly ILogger _logger;
         private readonly string _tokenIdentifier;
+        private readonly EventId _eventID;
 
         public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier )
         {
             this._next = next;
             this._logger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", apiName, "Request/Response" ) );
             this._tokenIdentifier = tokenIdentifier;
+            this._eventID = new EventId( KRFConstants.ApiEventId, KRFConstants.LogReqRespEvtName );
         }
-        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier, int? buffer = null )
+        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier, int? buffer = null ) 
+            : this( next, loggerFactory, apiName, tokenIdentifier )
         {
-            this._next = next;
             this._buffer = buffer;
-            this._logger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", apiName, "Request/Response" ) );
-            this._tokenIdentifier = tokenIdentifier;
         }
 
         public async Task Invoke( HttpContext context )
         {
-            if ( !this._buffer.HasValue || 
-                ( context.Request.ContentLength == null && context.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) ) || 
-                context.Request.ContentLength <= this._buffer )
+            if ( !context.Request.Path.StartsWithSegments( "/swagger" ) && ( !this._buffer.HasValue ||
+                ( context.Request.ContentLength == null && context.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) ) ||
+                context.Request.ContentLength <= this._buffer ) )
             {
                 if ( !context.Request.Body.CanSeek )
                 {
@@ -121,7 +121,11 @@
                 log.Append( "\nResponse Body:\n" );
                 log.Append( response );
 
-                this._logger.LogInformation( log.ToString() );
+                this._logger.LogInformation( this._eventID, log.ToString() );
+            }
+            else
+            {
+                await _next( context );
             }
         }
     }
