@@ -1,4 +1,4 @@
-﻿namespace KRFCommon.Handler
+﻿namespace KRFCommon.Middleware
 {
     using System.Net;
     using System.IO;
@@ -56,6 +56,7 @@
 
         private static IApplicationBuilder _KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit )
         {
+            var _eventId = new EventId( KRFConstants.ApiEventId, KRFConstants.LogExceptionEvtName );
             app.UseExceptionHandler( b => b.Run( async c =>
               {
                   var error = ( IExceptionHandlerFeature ) c.Features[ typeof( IExceptionHandlerFeature ) ];
@@ -105,7 +106,7 @@
                       log.Append( "\n------------------------------------------------------\n" );
                       log.Append( error.Error.Message );
 
-                      appLogger.LogError( error.Error, log.ToString() );
+                      appLogger.LogError( _eventId, error.Error, log.ToString() );
                   }
                   c.Response.ContentType = KRFConstants.JsonContentUtf8Type;
                   string errorMessage = JsonSerializer.Serialize( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
