@@ -1,4 +1,4 @@
-﻿namespace KRFCommon.Handler
+﻿namespace KRFCommon.Middleware
 {
     using Microsoft.AspNetCore.Http;
 

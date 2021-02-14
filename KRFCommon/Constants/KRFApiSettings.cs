@@ -9,5 +9,6 @@
         public const string RequestContext_Key = "RequestContext";
         public const string KRFDatabases_Key = "KRFDatabases";
         public const string MemoryCacheSettings_Key = "KRFMemoryCacheSettings";
+        public const string KRFLoggerConfig_Key = "KRFFileLogger";
     }
 }
