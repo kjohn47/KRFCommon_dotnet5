@@ -166,6 +166,7 @@ app.SwaggerConfigure( ApiName );
 ```
 ```
  add to services: -> services.AddKRFMemoryCache( KRFMemoryCacheSettings object/null ); 
+ add to services: -> services.AddKRFMemoryCache( IConfiguration GetSection(KRFMemoryCacheSettings) ); 
 ```
  if no settings are passed, default values are used: 10 minutes remove refresh and 60 minutes for each cached item.
 
@@ -205,3 +206,32 @@ All of the above have async Task<T> version, that terminates with Async ->
 ```
 
  KRFMemoryCache is an extension of MemoryCache
+
+ - KRF Loggers
+ * Log To File Provider
+  ```
+  services.AddLogging( l =>
+            {
+              a) l.AddKRFLogToFileLogger( IConfiguration GetSection() );
+              b) l.AddKRFLogToFileLogger( IConfiguration GetSection( KRFApiSettings.KRFLoggerConfig_Key ) );
+              c) l.AddKRFLogToFileLogger( IConfiguration GetSection( x => {
+                x is Action<KRFLogToFileLoggerOptions>
+              } ) );
+            }
+  Settings:
+    "KRFFileLogger": {
+    "Path": null, -> Path to log files, null to log on api/Logs, Relative path will log on api\Path, absolute path will log on Path\
+    "FilterLogLevelArray": [ "Information", "Warning", "Trace", "Critical", "Error" ], -> Array of loglevels to be logged that are not from middleware. (None and Debug are not available)
+    "DisableApiLogs": false, -> false or null will log api specific logs on Api folder, true to skip. Logs from Middleware.
+    "DisableSQLLogs": false -> false or null will log EF specific logs on SQL folder, true to skip. Logs from Entity Framework.
+  }
+
+  Each log origin has it's own folder and are created at start of app. There is a log folder for each loglevel, one for Api and one for SQL.
+  Files are created for each day and named after current date.
+  Api logs will have one file for each middleware used and current date
+  ```
+
+
+ * LogToEventLogApi
+ NOT IMPLEMENTED
+
