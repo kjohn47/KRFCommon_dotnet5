@@ -65,9 +65,10 @@
                       var requestToken = c.Request.Headers[ tokenIdentifier ];
                       string reqBody;
                       if ( c.Request.Body.CanSeek &&
-                            ( logReqLimit == null || ( c.Request.ContentLength != null && ( int ) logReqLimit >= c.Request.ContentLength ) ) &&
                             !c.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) &&
-                            c.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) )
+                            !c.Request.Method.Equals( KRFConstants.DeleteMethod, StringComparison.InvariantCultureIgnoreCase ) &&
+                            c.Request.ContentLength != null && ( logReqLimit == null || logReqLimit.Value >= c.Request.ContentLength ) &&
+                            c.Request.ContentType != null && c.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) )
                       {
                           var body = new MemoryStream();
                           c.Request.Body.Seek( 0, SeekOrigin.Begin );
@@ -99,6 +100,8 @@
                       log.Append( c.Request.Method );
                       log.Append( "\nRequest Token: " );
                       log.Append( requestToken );
+                      log.Append( "\nStatusCode:" );
+                      log.Append( c.Response.StatusCode.ToString() );
                       log.Append( "\nRequest Body:\n" );
                       log.Append( reqBody );
                       log.Append( "\n\n------------------------------------------------------" );
@@ -108,9 +111,7 @@
 
                       appLogger.LogError( _eventId, error.Error, log.ToString() );
                   }
-                  c.Response.ContentType = KRFConstants.JsonContentUtf8Type;
-                  string errorMessage = JsonSerializer.Serialize( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
-                  await c.Response.WriteAsync( errorMessage );
+                  await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
               } ) );
 
             return app;

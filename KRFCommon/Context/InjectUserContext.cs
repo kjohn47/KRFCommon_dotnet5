@@ -3,8 +3,14 @@ namespace KRFCommon.Context
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Net;
     using System.Text;
+    using System.Text.Json;
     using System.Threading.Tasks;
+
+    using KRFCommon.Constants;
+    using KRFCommon.CQRS.Common;
+    using KRFCommon.JSON;
 
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Http;
@@ -51,7 +57,7 @@ namespace KRFCommon.Context
                          if ( ctx.Request.Headers.ContainsKey( tokenIdentifier ) )
                          {
                              var bearerToken = ctx.Request.Headers[ tokenIdentifier ].ElementAt( 0 );
-                             var token = bearerToken.StartsWith( "Bearer ", System.StringComparison.OrdinalIgnoreCase ) ? bearerToken.Substring( 7 ) : bearerToken;
+                             var token = bearerToken.StartsWith( KRFJwtConstants.Bearer, StringComparison.OrdinalIgnoreCase ) ? bearerToken.Substring( 7 ) : bearerToken;
                              ctx.Token = token;
                          }
                          else
@@ -63,15 +69,15 @@ namespace KRFCommon.Context
                      OnTokenValidated = ctx =>
                      {
                          var jwtToken = ( System.IdentityModel.Tokens.Jwt.JwtSecurityToken ) ctx.SecurityToken;
-                         var isAdmin = jwtToken.Claims.FirstOrDefault( x => x.Type.Equals( "isAdmin", System.StringComparison.OrdinalIgnoreCase ) )?.Value.Equals( "true", System.StringComparison.OrdinalIgnoreCase );
+                         var isAdmin = jwtToken.Claims.FirstOrDefault( x => x.Type.Equals( KRFJwtConstants.IsAdmin, StringComparison.OrdinalIgnoreCase ) )?.Value.Equals( "true", StringComparison.OrdinalIgnoreCase );
                          var claims = new List<System.Security.Claims.Claim>();
                          if ( isAdmin != null && isAdmin == true )
                          {
-                             claims.Add( new System.Security.Claims.Claim( "UserRole", Claims.Admin.ToString() ) );
+                             claims.Add( new System.Security.Claims.Claim( KRFConstants.UserRoleClaim, Claims.Admin.ToString() ) );
                          }
                          else
                          {
-                             claims.Add( new System.Security.Claims.Claim( "UserRole", Claims.User.ToString() ) );
+                             claims.Add( new System.Security.Claims.Claim( KRFConstants.UserRoleClaim, Claims.User.ToString() ) );
                          }
                          var appIdentity = new System.Security.Claims.ClaimsIdentity( claims );
                          ctx.Principal.AddIdentity( appIdentity );
@@ -83,11 +89,11 @@ namespace KRFCommon.Context
              {
                  options.AddPolicy( Policies.Admin, policy =>
                  {
-                     policy.RequireClaim( "UserRole", Claims.Admin.ToString() );
+                     policy.RequireClaim( KRFConstants.UserRoleClaim, Claims.Admin.ToString() );
                  } );
                  options.AddPolicy( Policies.User, policy =>
                  {
-                     policy.RequireClaim( "UserRole", Claims.User.ToString(), Claims.Admin.ToString() );
+                     policy.RequireClaim( KRFConstants.UserRoleClaim, Claims.User.ToString(), Claims.Admin.ToString() );
                  } );
              } );
 

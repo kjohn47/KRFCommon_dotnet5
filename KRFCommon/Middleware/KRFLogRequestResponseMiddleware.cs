@@ -32,9 +32,7 @@
 
         public async Task Invoke( HttpContext context )
         {
-            if ( !context.Request.Path.StartsWithSegments( "/swagger" ) && ( !this._buffer.HasValue ||
-                ( context.Request.ContentLength == null && context.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) ) ||
-                context.Request.ContentLength <= this._buffer ) )
+            if ( !context.Request.Path.StartsWithSegments( "/swagger" ) )
             {
                 if ( !context.Request.Body.CanSeek )
                 {
@@ -51,9 +49,11 @@
                 string response;
                 string request;
 
-                if ( context.Request.ContentType != null &&
+                if ( context.Request.ContentType != null && 
                     context.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) &&
-                    !context.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) )
+                    !context.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) &&
+                    !context.Request.Method.Equals( KRFConstants.DeleteMethod, StringComparison.InvariantCultureIgnoreCase ) &&
+                    context.Request.ContentLength != null && (!this._buffer.HasValue || context.Request.ContentLength <= this._buffer.Value ) )
                 {
                     var reqBody = new MemoryStream();
                     context.Request.Body.Seek( 0, SeekOrigin.Begin );
@@ -118,6 +118,8 @@
                 log.Append( "\n------------------------------------------------------" );
                 log.Append( "\nTimeStamp:" );
                 log.Append( DateTime.Now.ToString( KRFConstants.TimeStampFormat ) );
+                log.Append( "\nStatusCode:" );
+                log.Append( context.Response.StatusCode.ToString() );
                 log.Append( "\nResponse Body:\n" );
                 log.Append( response );
 
