@@ -4,7 +4,9 @@
     {
         //String Constants
         public const string JsonContentType = "application/json";
-        public const string JsonContentUtf8Type = "application/json; charset=utf-8";
+        public const string JsonContentUtf8Type = "application/json; charset=utf-8;";
+        public const string AuthenticateHeader = "WWW-Authenticate";
+        public const string UserRoleClaim = "UserRole";
         public const string GetMethod = "GET";
         public const string PostMethod = "POST";
         public const string PutMethod = "PUT";
