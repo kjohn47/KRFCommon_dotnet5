@@ -5,12 +5,9 @@ namespace KRFCommon.Context
     using System.Linq;
     using System.Net;
     using System.Text;
-    using System.Text.Json;
     using System.Threading.Tasks;
 
     using KRFCommon.Constants;
-    using KRFCommon.CQRS.Common;
-    using KRFCommon.JSON;
 
     using Microsoft.AspNetCore.Authentication.JwtBearer;
     using Microsoft.AspNetCore.Http;
@@ -33,7 +30,16 @@ namespace KRFCommon.Context
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
             services.AddScoped<ITokenProvider, TokenProvider>( s => new TokenProvider( s.GetService<IHttpContextAccessor>(), tokenIdentifier ) );
-            services.AddScoped<IUserContext, UserContext>( s => new UserContext( s.GetService<ITokenProvider>(), key ) );
+            services.AddScoped<IUserContext, UserContext>( s =>
+            {
+                var userCtx = new UserContext( s.GetService<ITokenProvider>(), key );
+                if ( userCtx.Claim.Equals( Claims.NotLogged ) )
+                {
+                    return null;
+                }
+                return userCtx;
+            } );
+
             services.AddAuthentication( o =>
             {
                 o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -63,6 +69,14 @@ namespace KRFCommon.Context
                          else
                          {
                              ctx.NoResult();
+                         }
+                         return Task.CompletedTask;
+                     },
+                     OnAuthenticationFailed = ctx =>
+                     {
+                         if ( ctx.Exception is SecurityTokenInvalidSignatureException )
+                         {
+                             throw new SecurityTokenInvalidSignatureException( "Invalid token signature, authentication rejected" );
                          }
                          return Task.CompletedTask;
                      },
