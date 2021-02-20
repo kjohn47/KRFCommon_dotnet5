@@ -10,5 +10,6 @@
         public const string KRFDatabases_Key = "KRFDatabases";
         public const string MemoryCacheSettings_Key = "KRFMemoryCacheSettings";
         public const string KRFLoggerConfig_Key = "KRFFileLogger";
+        public const string KRFExternalServices_Key = "KRFExternalServices";
     }
 }
