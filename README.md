@@ -56,6 +56,11 @@ Will return output of type: ICommandValidationError -> ErrorOut GetError();
  async Task<IActionResult> ExecuteAsyncCommand<Tinput, Toutput>( Tinput request, ICommand<Tinput, Toutput> command, Func<Toutput, IActionResult> changeAction = null )
 
 ```
+Dependency: 
+AddKRFController -> configures json serializer and controller on services.AddController()
+```
+  services.AddKRFController()
+```
 
 
 - sql EF query error and dependency injection and migration configuration helper
@@ -235,3 +240,32 @@ All of the above have async Task<T> version, that terminates with Async ->
  * LogToEventLogApi
  NOT IMPLEMENTED
 
+
+
+* Service Proxy - External Services
+TODO: Common service handler
+Configuration -> KRFExternalServices
+```
+  "KRFExternalServices": {
+    "ServerList": {
+      "ServerImplTypeName" : {
+        "ServerUrl" : "https://server.url:port",
+        "CertificatePath" : "string", (to decide implementation)
+        "CertificateKey" : "SomeStringKey",
+        "TokenIdentifier" : "string - for sending krf token on header, use on krf api's",
+        "TokenKey" : "string - signature key expected by krf api token",
+        "Timeout" : null or number,
+        "ForceDisableSSL" : null or boolean
+      }
+    }
+  }
+```
+
+Session api / auth api
+** CheckSessionResult -> class to be used as response from CheckSessionAlive Command (implements ICommandResponse)
+
+JSON
+KRFJsonSerializerOptions -> common json serializer settings used on all api's
+```
+  KRFJsonSerializerOptions.GetJsonSerializerOptions()
+```
