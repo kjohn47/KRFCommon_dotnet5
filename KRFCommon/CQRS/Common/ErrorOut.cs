@@ -5,6 +5,9 @@
     public class ErrorOut
     {
 
+        public ErrorOut()
+        { }
+
         public ErrorOut( HttpStatusCode code, string message, string errorProperty = "" )
         {
             this.ErrorMessage = message;
@@ -45,11 +48,11 @@
             this.ErrorType = errorType;
         }
 
-        public bool WithErrors { get; }
-        public int ErrorStatusCode { get; }
-        public string ErrorMessage { get; }
-        public string ErrorProperty { get; }
-        public bool ValidationError { get; }
-        public ResponseErrorType ErrorType { get; }
+        public bool WithErrors { get; set; }
+        public int ErrorStatusCode { get; set; }
+        public string ErrorMessage { get; set; }
+        public string ErrorProperty { get; set; }
+        public bool ValidationError { get; set; }
+        public ResponseErrorType ErrorType { get; set; }
     }
 }

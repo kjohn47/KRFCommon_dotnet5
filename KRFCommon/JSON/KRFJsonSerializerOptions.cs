@@ -22,6 +22,7 @@
                 opt.Converters.Add( converter );
             }
             opt.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+            opt.PropertyNameCaseInsensitive = true;
 
             return opt;
         }
