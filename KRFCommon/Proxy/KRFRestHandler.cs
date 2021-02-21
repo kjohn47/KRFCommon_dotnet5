@@ -150,7 +150,7 @@
             {
                 return new KRFHttpResponse<TResp>
                 {
-                    Error = new ErrorOut( HttpStatusCode.InternalServerError, string.Format( "Could not retrieve response from {0}/{1}", request.Url, route ) ),
+                    Error = new ErrorOut( HttpStatusCode.InternalServerError, string.Format( "Could not retrieve response from {0}/{1}", request.Url, route ), ResponseErrorType.Proxy ),
                     HttpStatus = HttpStatusCode.InternalServerError
                 };
             }
