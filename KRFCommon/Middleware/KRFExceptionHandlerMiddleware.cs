@@ -120,15 +120,15 @@
                   {
                       c.Response.Headers.Append( KRFConstants.AuthenticateHeader, error.Error.Message );
                       c.Response.StatusCode = ( int ) HttpStatusCode.Unauthorized;
-                      await c.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, error.Error.Message, false, ResponseErrorType.Application, "Authorization" ) );
+                      await c.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, error.Error.Message, ResponseErrorType.Application, "Authorization" ) );
                   }
                   else if ( error.Error is HttpRequestException )
                   {
-                      await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, "Could not execute request to the server", false, ResponseErrorType.Exception, "Exception" ) );
+                      await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, "Could not execute request to the server", ResponseErrorType.Exception, "Exception" ) );
                   }
                   else
                   {
-                      await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, false, ResponseErrorType.Exception, "Exception" ) );
+                      await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, ResponseErrorType.Exception, "Exception" ) );
                   }
 
               } ) );

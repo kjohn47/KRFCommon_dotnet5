@@ -5,51 +5,58 @@
     public class ErrorOut
     {
 
-        public ErrorOut( HttpStatusCode code, string message, string errorProperty = "" )
-        {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
-            this.ErrorProperty = errorProperty;
-            this.WithErrors = true;
-            this.ValidationError = true;
-            this.ErrorType = ResponseErrorType.Unknown;
-        }
+        public ErrorOut()
+        { }
 
-        public ErrorOut( HttpStatusCode code, string message, bool validationError, string errorProperty = "" )
+        public ErrorOut( HttpStatusCode code, string message )
         {
             this.ErrorMessage = message;
             this.ErrorStatusCode = ( int ) code;
-            this.ErrorProperty = errorProperty;
-            this.ValidationError = validationError;
             this.WithErrors = true;
             this.ErrorType = ResponseErrorType.Unknown;
         }
 
-        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType, string errorProperty = "" )
+        public ErrorOut( HttpStatusCode code, string message, string errorProperty )
         {
             this.ErrorMessage = message;
             this.ErrorStatusCode = ( int ) code;
             this.ErrorProperty = errorProperty;
             this.WithErrors = true;
-            this.ValidationError = true;
-            this.ErrorType = errorType;
+            this.ErrorType = ResponseErrorType.Unknown;
         }
 
-        public ErrorOut( HttpStatusCode code, string message, bool validationError, ResponseErrorType errorType, string errorProperty = "" )
+        public ErrorOut( HttpStatusCode code, string message, bool validationError, string errorProperty )
         {
             this.ErrorMessage = message;
             this.ErrorStatusCode = ( int ) code;
             this.ErrorProperty = errorProperty;
-            this.ValidationError = validationError;
+            this.WithErrors = true;
+            this.ErrorType = validationError ? ResponseErrorType.Validation : ResponseErrorType.Unknown;
+        }
+
+        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType )
+        {
+            this.ErrorMessage = message;
+            this.ErrorStatusCode = ( int ) code;
             this.WithErrors = true;
             this.ErrorType = errorType;
         }
 
-        public bool WithErrors { get; }
-        public int ErrorStatusCode { get; }
-        public string ErrorMessage { get; }
-        public string ErrorProperty { get; }
-        public bool ValidationError { get; }
-        public ResponseErrorType ErrorType { get; }
+        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType, string errorProperty )
+        {
+            this.ErrorMessage = message;
+            this.ErrorStatusCode = ( int ) code;
+            this.ErrorProperty = errorProperty;
+            this.WithErrors = true;
+            this.ErrorType = errorType;
+        }
+
+        public bool WithErrors { get; set; }
+        public int ErrorStatusCode { get; set; }
+        public string ErrorMessage { get; set; }
+        public string ErrorProperty { get; set; }
+        public ResponseErrorType ErrorType { get; set; }
+
+        public bool ValidationError => this.ErrorType.Equals( ResponseErrorType.Validation );
     }
 }

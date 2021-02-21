@@ -243,7 +243,16 @@ All of the above have async Task<T> version, that terminates with Async ->
 
 
 * Service Proxy - External Services
-TODO: Common service handler
+TODO: Common service handler for swagger generated proxy
+
+KRFRestHandler handler for calling rest api
+```
+Task<KRFHttpResponse<TResp>> RequestHttp<TResp>( KRFHttpRequest request ) -> use this for when no body needs to be sent
+
+Task<KRFHttpResponse<TResp>> RequestHttp<TBody, TResp>( KRFHttpRequestWithBody<TBody> request ) -> use this for when body needs to be sent (POST/PUT only)
+
+```
+
 Configuration -> KRFExternalServices
 ```
   "KRFExternalServices": {

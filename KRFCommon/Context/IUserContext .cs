@@ -4,10 +4,11 @@
 
     public interface IUserContext
     {
-        public Guid UserId { get; set; }
-        public string UserName { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public Claims Claim { get; set; }
+        Guid UserId { get; }
+        Guid SessionId { get; }
+        string UserName { get; }
+        string Name { get; }
+        string Surname { get; }
+        Claims Claim { get; }
     }
 }
