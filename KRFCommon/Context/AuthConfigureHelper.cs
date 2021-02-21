@@ -16,12 +16,12 @@
                  {
                      case ( ( int ) HttpStatusCode.Unauthorized ):
                      {
-                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, "User is not authenticated", false, ResponseErrorType.Application, "Authentication" ) );
+                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, "User is not authenticated",  ResponseErrorType.Application, "Authentication" ) );
                          break;
                      }
                      case ( ( int ) HttpStatusCode.Forbidden ):
                      {
-                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Forbidden, "User is not allowed to resource", false, ResponseErrorType.Application, "Authorization" ) );
+                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Forbidden, "User is not allowed to resource", ResponseErrorType.Application, "Authorization" ) );
                          break;
                      }
                  }
