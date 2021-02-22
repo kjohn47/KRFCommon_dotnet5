@@ -1,9 +1,8 @@
 namespace KRFCommon.Context
 {
     using System;
-    using System.Collections.Generic;
+    using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
-    using System.Net;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -29,16 +28,6 @@ namespace KRFCommon.Context
             }
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            services.AddScoped<ITokenProvider, TokenProvider>( s => new TokenProvider( s.GetService<IHttpContextAccessor>(), tokenIdentifier ) );
-            services.AddScoped<IUserContext, UserContext>( s =>
-            {
-                var userCtx = new UserContext( s.GetService<ITokenProvider>(), key );
-                if ( userCtx.Claim.Equals( Claims.NotLogged ) )
-                {
-                    return null;
-                }
-                return userCtx;
-            } );
 
             services.AddAuthentication( o =>
             {
@@ -82,19 +71,11 @@ namespace KRFCommon.Context
                      },
                      OnTokenValidated = ctx =>
                      {
-                         var jwtToken = ( System.IdentityModel.Tokens.Jwt.JwtSecurityToken ) ctx.SecurityToken;
-                         var isAdmin = jwtToken.Claims.FirstOrDefault( x => x.Type.Equals( KRFJwtConstants.IsAdmin, StringComparison.OrdinalIgnoreCase ) )?.Value.Equals( "true", StringComparison.OrdinalIgnoreCase );
-                         var claims = new List<System.Security.Claims.Claim>();
-                         if ( isAdmin != null && isAdmin == true )
-                         {
-                             claims.Add( new System.Security.Claims.Claim( KRFConstants.UserRoleClaim, Claims.Admin.ToString() ) );
+                         var currentIdentity = ctx.Principal.Identities.FirstOrDefault();
+                         if ( currentIdentity != null )
+                         { 
+                            currentIdentity.AddClaim( KRFJwt.GetUserRoleClaim( ( ctx.SecurityToken as JwtSecurityToken ).Claims ) );
                          }
-                         else
-                         {
-                             claims.Add( new System.Security.Claims.Claim( KRFConstants.UserRoleClaim, Claims.User.ToString() ) );
-                         }
-                         var appIdentity = new System.Security.Claims.ClaimsIdentity( claims );
-                         ctx.Principal.AddIdentity( appIdentity );
                          return Task.CompletedTask;
                      }
                  };
@@ -110,6 +91,18 @@ namespace KRFCommon.Context
                      policy.RequireClaim( KRFConstants.UserRoleClaim, Claims.User.ToString(), Claims.Admin.ToString() );
                  } );
              } );
+
+            services.AddScoped<IUserContext, UserContext>( x =>
+            {
+                var ctx = new UserContext( x.GetService<IHttpContextAccessor>() );
+
+                if ( ctx.Claim.Equals( Claims.NotLogged ) )
+                {
+                    return null;
+                }
+
+                return ctx;
+            } );
 
             return services;
         }

@@ -2,9 +2,13 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Reflection;
 
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Mvc.Controllers;
     using Microsoft.Extensions.DependencyInjection;
+
+    using Swashbuckle.AspNetCore.SwaggerGen;
 
     public static class SwaggerInitHelper
     {
@@ -50,6 +54,21 @@
                      Version = "v1",
                      Title = AppName,
                      Description = string.Format( "{0} API Swagger", AppName )
+                 } );
+
+                 option.CustomOperationIds( apiDesc =>
+                 {
+                     var controllerDesc = apiDesc.ActionDescriptor as ControllerActionDescriptor;
+                     var method = string.Format("{0}{1}", apiDesc.HttpMethod.Substring(0, 1), apiDesc.HttpMethod.Substring(1).ToLowerInvariant());
+
+                     if (controllerDesc != null)
+                     {
+                         return $"{controllerDesc.ControllerName}{controllerDesc.ActionName}_{method}";
+                     }
+
+                     return apiDesc.TryGetMethodInfo( out MethodInfo methodInfo ) 
+                        ? $"{apiDesc.ActionDescriptor.RouteValues[ "controller" ]}{methodInfo.Name}_{method}" 
+                        : $"{apiDesc.ActionDescriptor.RouteValues[ "controller" ]}_{method}";
                  } );
              } );
 

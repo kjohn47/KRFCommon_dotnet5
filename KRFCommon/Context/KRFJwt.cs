@@ -1,45 +1,50 @@
 ﻿namespace KRFCommon.Context
 {
     using System;
+    using System.Collections.Generic;
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Linq;
+    using System.Security.Claims;
     using System.Text;
 
     using KRFCommon.Constants;
 
-    public class KRFJwt
+    using Microsoft.IdentityModel.Tokens;
+
+    public static class KRFJwt
     {
-        public KRFJwt()
-        { }
-
-        public KRFJwt( IUserContext context )
+        public static string GetSignedBearerTokenFromContext( IUserContext context, string signKey, DateTime? expiration = null )
         {
-            this.Name = context.Name;
-            this.Surname = context.Surname;
-            this.UserName = context.UserName;
-            this.IsAdmin = context.Claim.Equals( Claims.Admin ) ? "true" : null;
-            this.UserId = context.UserId.ToString();
-            this.SessionId = context.SessionId.ToString();
+            var handler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey( Encoding.UTF8.GetBytes( signKey ) );
+            var descriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity( new[]
+                {
+                    new Claim(KRFJwtConstants.Name, context.Name?? string.Empty),
+                    new Claim(KRFJwtConstants.Surname, context.Surname?? string.Empty),
+                    new Claim(KRFJwtConstants.UserName, context.UserName),
+                    new Claim(KRFJwtConstants.UserId, context.UserId.ToString()),
+                    new Claim(KRFJwtConstants.SessionId, context.SessionId.ToString()),
+                    new Claim(KRFJwtConstants.IsAdmin, context.Claim.Equals(Claims.Admin) ? "true" : "false")
+                } ),
+                Expires = expiration,
+                SigningCredentials = new SigningCredentials( key, SecurityAlgorithms.HmacSha512Signature )
+            };
+
+            return KRFJwtConstants.Bearer + handler.WriteToken( handler.CreateToken( descriptor ) );
         }
 
-        public KRFJwt( string name, string surname, string userName, bool isAdmin, Guid userId, Guid sessionId )
+        public static Claim GetUserRoleClaim( IEnumerable<Claim> claims )
         {
-            this.Name = name;
-            this.Surname = surname;
-            this.UserName = userName;
-            this.IsAdmin = isAdmin ? "true" : null;
-            this.UserId = userId.ToString();
-            this.SessionId = sessionId.ToString();
-        }
+            var isAdmin = claims.FirstOrDefault( x => x.Type.Equals( KRFJwtConstants.IsAdmin, StringComparison.OrdinalIgnoreCase ) )?.Value.Equals( "true", StringComparison.OrdinalIgnoreCase );
 
-        public string UserId { get; private set; }
-        public string SessionId { get; private set; }
-        public string UserName { get; private set; }
-        public string Name { get; private set; }
-        public string Surname { get; private set; }
-        public string IsAdmin { get; private set; }
-
-        public static string GetSignedBearerTokenFromContext( IUserContext context, string signKey )
-        {
-            return KRFJwtConstants.Bearer + Jose.JWT.Encode( new KRFJwt( context ), Encoding.UTF8.GetBytes( signKey ), Jose.JwsAlgorithm.HS512 );
+            if ( isAdmin != null && isAdmin == true )
+            {
+                return new Claim( KRFConstants.UserRoleClaim, Claims.Admin.ToString() );
+            }
+            
+            return new Claim( KRFConstants.UserRoleClaim, Claims.User.ToString() );
         }
     }
 }
