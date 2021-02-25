@@ -1,5 +1,6 @@
 ﻿namespace KRFCommon.Middleware
 {
+    using KRFCommon.Api;
     using KRFCommon.Constants;
 
     using Microsoft.AspNetCore.Http;
@@ -17,17 +18,13 @@
         private readonly string _tokenIdentifier;
         private readonly EventId _eventID;
 
-        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier )
+        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, AppConfiguration configuration )
         {
             this._next = next;
-            this._logger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", apiName, "Request/Response" ) );
-            this._tokenIdentifier = tokenIdentifier;
+            this._logger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", configuration.ApiName, "Request/Response" ) );
+            this._tokenIdentifier = configuration.TokenIdentifier;
             this._eventID = new EventId( KRFConstants.ApiEventId, KRFConstants.LogReqRespEvtName );
-        }
-        public KRFLogRequestResponseMiddleware( RequestDelegate next, ILoggerFactory loggerFactory, string apiName, string tokenIdentifier, int? buffer = null ) 
-            : this( next, loggerFactory, apiName, tokenIdentifier )
-        {
-            this._buffer = buffer;
+            this._buffer = configuration.RequestBufferSize;
         }
 
         public async Task Invoke( HttpContext context )

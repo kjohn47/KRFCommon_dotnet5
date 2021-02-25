@@ -4,6 +4,8 @@
     using System.Collections.Generic;
     using System.Reflection;
 
+    using KRFCommon.Api;
+
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Mvc.Controllers;
     using Microsoft.Extensions.DependencyInjection;
@@ -12,14 +14,14 @@
 
     public static class SwaggerInitHelper
     {
-        public static IServiceCollection SwaggerInit( this IServiceCollection services, string AppName, string tokenIdentifier )
+        public static IServiceCollection SwaggerInit( this IServiceCollection services, AppConfiguration configuration )
         {
-            if ( string.IsNullOrEmpty( tokenIdentifier ) )
+            if ( string.IsNullOrEmpty( configuration.TokenIdentifier ) )
             {
                 throw new Exception( "Missing token identifier setting" );
             }
 
-            if ( string.IsNullOrEmpty( AppName ) )
+            if ( string.IsNullOrEmpty( configuration.ApiName ) )
             {
                 throw new Exception( "Missing App Name setting" );
             }
@@ -30,7 +32,7 @@
                  {
                      In = Microsoft.OpenApi.Models.ParameterLocation.Header,
                      Description = "Place Access Bearer JWT Token",
-                     Name = tokenIdentifier,
+                     Name = configuration.TokenIdentifier,
                      Type = Microsoft.OpenApi.Models.SecuritySchemeType.ApiKey
                  } );
 
@@ -49,11 +51,11 @@
                    }
                 } );
 
-                 option.SwaggerDoc( AppName, new Microsoft.OpenApi.Models.OpenApiInfo
+                 option.SwaggerDoc( configuration.ApiName, new Microsoft.OpenApi.Models.OpenApiInfo
                  {
                      Version = "v1",
-                     Title = AppName,
-                     Description = string.Format( "{0} API Swagger", AppName )
+                     Title = configuration.ApiName,
+                     Description = string.Format( "{0} API Swagger", configuration.ApiName )
                  } );
 
                  option.CustomOperationIds( apiDesc =>

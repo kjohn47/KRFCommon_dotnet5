@@ -1,26 +1,18 @@
 ﻿namespace KRFCommon.CQRS.Validator
 {
-    using System;
     using System.Net;
 
     using KRFCommon.CQRS.Common;
 
     public static class ValidationHelper
     {
-        public static ErrorOut GenerateError( string errorMessage, string errorProperty, string errorCode = "" )
+        public static ErrorOut GenerateError( string errorMessage, string errorProperty, HttpStatusCode? httpStatus = null, string errorCode = null )
         {
-            HttpStatusCode code = HttpStatusCode.BadRequest;
-            if ( !string.IsNullOrEmpty( errorCode ) )
-            {
-                object errorParseOut;
-                Enum.TryParse( typeof( HttpStatusCode ), errorCode, out errorParseOut );
-                if ( errorParseOut != null )
-                {
-                    code = ( HttpStatusCode ) errorParseOut;
-                }
-            }
-
-            return new ErrorOut( code, errorMessage, ResponseErrorType.Validation, errorProperty );
+            return new ErrorOut( 
+                httpStatus.HasValue ? httpStatus.Value : HttpStatusCode.BadRequest,
+                errorMessage, 
+                ResponseErrorType.Validation, 
+                errorProperty, errorCode );
         }
     }
 }
