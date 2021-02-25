@@ -10,5 +10,6 @@
         string Name { get; }
         string Surname { get; }
         Claims Claim { get; }
+        DateTime? TokenExpiration { get; }
     }
 }

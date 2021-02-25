@@ -12,8 +12,12 @@
 
         public const string IsAdmin = "isadmin";
 
+        public const string ExpireTicks = "exp";
+
         public const string SessionId = "sessionid";
 
-        public const string Bearer = "Bearer ";
+        public const string BearerSpaced = "Bearer ";
+
+        public const string Bearer = "Bearer";
     }
 }

@@ -11,9 +11,32 @@ This nuget has all common parts to be used on microservices for KJohn React Fram
 
 - user context + user authorization and authentcation config
 ```
-services.InjectUserContext( TokenIdentifier, TokenKey );
+services.AddUserBearerContext( AppConfiguration configuration );
+services.AddUserBearerContext( IConfiguration configuration );
+
+Settings: 
+"AppConfiguration" : {
+    "ApiName": "Api_Name",
+    "TokenIdentifier": "Token - Request Header Key",
+    "TokenKey": "SigningKeyString",
+    "TokenValidateLife": true/false,
+    "TokenValidIssuers" : [ "Issuer1" ], -> or null to disable validation
+    "TokenValidAudiences" : [ "Audience1" ] -> or null to disable validation
+}
+
+
 app.AuthConfigure();
 ```
+Auth token Errors: 
+- when authentication is needed on endpoint: 401 
+- when endpoint allows anonymous request: 200
+
+Authenticated endpoint will respond with Header on response 'www-authenticate' with error code:
+KRFTOKENSIGN -> invalid signature on token ---> App should force logout in case of this code
+KRFTOKENEXPIRE -> token lifetime expired ---> App should request new access Token with refresh token and old auth token
+KRFTOKENERROR -> other validation scenarios not specified
+
+Forbidden: When user doesn't have role claim needed for endpoint. Currently only User and Admin
 
 - query and command abstractions
 ```
@@ -44,7 +67,7 @@ YourValidator : KRFValidator<TReq>, IKRFValidator<TReq>
 result = IKRFValidator<TReq> validator -> await validator.CheckValidationAsync( TReq request );
 Will retun output for command ExecuteValidationAsync
 Will return output of type: ICommandValidationError -> ErrorOut GetError();
-
+-> GenerateErrorCodeWithHttpStatus(httpStatusCode, ErrorCode) on ErrorCode field will allow to change httpStatusCode on response
 ```
 
 - Common controller:
@@ -213,6 +236,39 @@ All of the above have async Task<T> version, that terminates with Async ->
  KRFMemoryCache is an extension of MemoryCache
 
  - KRF Loggers
+ * Log to multiple KRF providers:
+ This logger builder will clear all providers and load configuration from logging. Providers must be defined on KRFLogDestination array
+ ```
+    services.AddLogging( l =>
+        l.AddKRFLogger( IConfiguration this.Configuration )
+    );
+
+    Settings: 
+    "KRFLogger": {
+      "KRFLogDestination" : [ "ToConsole", "ToDebug", "ToEvents", "ToEventSource", "ToFile", "ToServer" ],
+      "KRFFileLogger": {  -> only needed if ToFile is set as destination
+          "Path": null, -> Path to log files, null to log on api/Logs, Relative path will log on api\Path, absolute path will log on Path\
+          "FilterLogLevelArray": [ "Information", "Warning", "Trace", "Critical", "Error" ], -> Array of loglevels to be logged that are not from middleware. (None and Debug are not available)
+          "DisableApiLogs": false, -> false or null will log api specific logs on Api folder, true to skip. Logs from Middleware.
+          "DisableSQLLogs": false -> false or null will log EF specific logs on SQL folder, true to skip. Logs from Entity Framework.
+      },
+      "KRFServerLogger": { -> only needed if ToServer is set as destination
+          //Not Implemented
+      }
+    },
+    "Logging": {
+      "Logging": {
+        "IncludeScopes": {},
+        "LogLevel": {
+          "Default": "Warning",
+          "Microsoft": "Warning",
+          "Microsoft.Hosting.Lifetime": "Information",
+          "System": "Warning"
+        }
+      }
+    }
+ ```
+
  * Log To File Provider
   ```
   services.AddLogging( l =>
@@ -270,7 +326,7 @@ Configuration -> KRFExternalServices
   }
 ```
 
-Session api / auth api
+Session api / auth api?? implementation without refreshToken
 ** CheckSessionResult -> class to be used as response from CheckSessionAlive Command (implements ICommandResponse)
 
 JSON

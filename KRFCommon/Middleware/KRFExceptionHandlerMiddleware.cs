@@ -14,63 +14,50 @@
     using System.Text;
     using System;
     using KRFCommon.Constants;
-    using Microsoft.IdentityModel.Tokens;
     using System.Net.Http;
+    using KRFCommon.Api;
 
     public static class KRFExceptionHandlerMiddleware
     {
-        public static IApplicationBuilder KRFLogAndExceptionHandlerConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize = null )
+        public static IApplicationBuilder KRFLogAndExceptionHandlerConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, AppConfiguration configuration, bool isDev = false )
         {
-            if ( enableLogs && enableReadRequest )
+            if ( configuration.EnableReqLogs || isDev )
             {
-                if ( reqBufferSize.HasValue )
-                    app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize );
-                else
-                    app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier );
+                    app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, configuration );
             }
 
-            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, configuration );
 
             return app;
         }
 
-        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool enableLogs, string apiName, string tokenIdentifier, bool enableReadRequest, int? reqBufferSize = null )
+        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, AppConfiguration configuration, bool isDev = false )
         {
-            if ( enableLogs && enableReadRequest )
+            if ( configuration.EnableReqLogs || isDev )
             {
-                if ( reqBufferSize.HasValue )
-                    app.UseMiddleware<KRFBodyRewindMiddleware>( reqBufferSize );
-                else
-                    app.UseMiddleware<KRFBodyRewindMiddleware>();
+                app.UseMiddleware<KRFBodyRewindMiddleware>( configuration );
             }
 
-            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, enableLogs, apiName, tokenIdentifier, enableReadRequest ? reqBufferSize : null );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, configuration );
 
             return app;
         }
 
-        public static IApplicationBuilder KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier )
-        {
-            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, logErrors, apiName, tokenIdentifier, null );
-
-            return app;
-        }
-
-        private static IApplicationBuilder _KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier, int? logReqLimit )
+        private static IApplicationBuilder _KRFExceptionHandlerMiddlewareConfigure( this IApplicationBuilder app, ILoggerFactory loggerFactory, AppConfiguration configuration, bool isDev = false )
         {
             var _eventId = new EventId( KRFConstants.ApiEventId, KRFConstants.LogExceptionEvtName );
             app.UseExceptionHandler( b => b.Run( async c =>
               {
                   var error = ( IExceptionHandlerFeature ) c.Features[ typeof( IExceptionHandlerFeature ) ];
 
-                  if ( logErrors )
+                  if ( configuration.EnableReqLogs || isDev )
                   {
-                      var requestToken = c.Request.Headers[ tokenIdentifier ];
+                      var requestToken = c.Request.Headers[ configuration.TokenIdentifier ];
                       string reqBody;
                       if ( c.Request.Body.CanSeek &&
                             !c.Request.Method.Equals( KRFConstants.GetMethod, StringComparison.InvariantCultureIgnoreCase ) &&
                             !c.Request.Method.Equals( KRFConstants.DeleteMethod, StringComparison.InvariantCultureIgnoreCase ) &&
-                            c.Request.ContentLength != null && ( logReqLimit == null || logReqLimit.Value >= c.Request.ContentLength ) &&
+                            c.Request.ContentLength != null && ( !configuration.RequestBufferSize.HasValue || configuration.RequestBufferSize.Value >= c.Request.ContentLength ) &&
                             c.Request.ContentType != null && c.Request.ContentType.Contains( KRFConstants.JsonContentType, StringComparison.InvariantCultureIgnoreCase ) )
                       {
                           var body = new MemoryStream();
@@ -89,7 +76,7 @@
                           reqBody = "Could not read request body: Get method or Request reading disabled or content too long";
                       }
                       var requestUrl = c.Request.Path + c.Request.QueryString;
-                      var appLogger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", apiName, "Exceptions" ) );
+                      var appLogger = loggerFactory.CreateLogger( string.Format( "{0} - {1}", configuration.ApiName, "Exceptions" ) );
 
                       var log = new StringBuilder();
                       log.Append( "\n------------------------------------------------------" );
@@ -116,19 +103,18 @@
                   }
 
                   //Check specific exceptons first
-                  if ( error.Error is SecurityTokenInvalidSignatureException )
+                  switch ( error.Error )
                   {
-                      c.Response.Headers.Append( KRFConstants.AuthenticateHeader, error.Error.Message );
-                      c.Response.StatusCode = ( int ) HttpStatusCode.Unauthorized;
-                      await c.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, error.Error.Message, ResponseErrorType.Application, "Authorization" ) );
-                  }
-                  else if ( error.Error is HttpRequestException )
-                  {
-                      await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, "Could not execute request to the server", ResponseErrorType.Exception, "Exception" ) );
-                  }
-                  else
-                  {
-                      await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, ResponseErrorType.Exception, "Exception" ) );
+                      case ( HttpRequestException httpEx ):
+                      {
+                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, "Could not execute request to the server", ResponseErrorType.Exception, "Exception", KRFConstants.HttpExErrorCode ) );
+                          break;
+                      }
+                      default:
+                      {
+                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, ResponseErrorType.Exception, "Exception", KRFConstants.DefaultErrorCode ) );
+                          break;
+                      }
                   }
 
               } ) );
