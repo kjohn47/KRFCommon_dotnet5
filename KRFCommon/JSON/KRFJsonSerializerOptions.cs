@@ -23,7 +23,7 @@
             }
             opt.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
             opt.PropertyNameCaseInsensitive = true;
-
+            opt.AllowTrailingCommas = true;
             return opt;
         }
     }

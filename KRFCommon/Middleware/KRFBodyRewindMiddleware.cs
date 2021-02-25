@@ -1,5 +1,7 @@
 ﻿namespace KRFCommon.Middleware
 {
+    using KRFCommon.Api;
+
     using Microsoft.AspNetCore.Http;
 
     using System.Threading.Tasks;
@@ -8,14 +10,10 @@
         private readonly RequestDelegate _next;
         private readonly int? _buffer;
 
-        public KRFBodyRewindMiddleware( RequestDelegate next )
+        public KRFBodyRewindMiddleware( RequestDelegate next, AppConfiguration configuration )
         {
             this._next = next;
-        }
-        public KRFBodyRewindMiddleware( RequestDelegate next, int? buffer = null )
-        {
-            this._next = next;
-            this._buffer = buffer;
+            this._buffer = configuration.RequestBufferSize;
         }
 
         public async Task Invoke( HttpContext context )

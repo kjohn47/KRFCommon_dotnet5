@@ -5,9 +5,19 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Data.SqlClient;
     using System.IO;
+    using Microsoft.Extensions.Configuration;
+    using KRFCommon.Constants;
 
     public static class KRFDbContextInjectHelper
     {
+        public static IServiceCollection InjectDBContext<TDBContext>( this IServiceCollection services, IConfiguration configuration )
+            where TDBContext : DbContext
+        {
+            KRFDatabases dbSettings = configuration.GetSection( KRFApiSettings.KRFDatabases_Key ).Get<KRFDatabases>() ?? null;
+
+            return services.InjectDBContext<TDBContext>( dbSettings );
+        }
+
         public static IServiceCollection InjectDBContext<TDBContext>( this IServiceCollection services, KRFDatabases dbSettings )
             where TDBContext : DbContext
         {
@@ -21,7 +31,7 @@
 
             if ( !dbSettings.Databases.TryGetValue( contextName, out settings ) )
             {
-                throw new Exception( string.Format("Missing settings for {0}", contextName ) );
+                throw new Exception( string.Format( "Missing settings for {0}", contextName ) );
             }
 
             if ( settings == null || string.IsNullOrEmpty( settings.ConnectionString ) )

@@ -77,9 +77,9 @@
                         client.BaseAddress = new Uri( request.Url );
                         client.DefaultRequestHeaders.Accept.Append( new MediaTypeWithQualityHeaderValue( KRFConstants.JsonContentType ) );
 
-                        if ( !string.IsNullOrEmpty( request.KRFBearerToken ) && !string.IsNullOrEmpty( request.KRFBearerTokenHeader ) )
+                        if ( !string.IsNullOrEmpty( request.BearerToken ) && !string.IsNullOrEmpty( request.BearerTokenHeader ) )
                         {
-                            client.DefaultRequestHeaders.Add( request.KRFBearerTokenHeader, request.KRFBearerToken );
+                            client.DefaultRequestHeaders.Add( request.BearerTokenHeader, request.BearerToken );
                         }
 
                         if ( request.Timeout.HasValue )
@@ -150,7 +150,7 @@
             {
                 return new KRFHttpResponse<TResp>
                 {
-                    Error = new ErrorOut( HttpStatusCode.InternalServerError, string.Format( "Could not retrieve response from {0}/{1}", request.Url, route ), ResponseErrorType.Proxy ),
+                    Error = new ErrorOut( HttpStatusCode.InternalServerError, string.Format( "Could not retrieve response from {0}/{1}", request.Url, route ), ResponseErrorType.Proxy, KRFConstants.NotAvailableErrorCode ),
                     HttpStatus = HttpStatusCode.InternalServerError
                 };
             }
