@@ -1,10 +1,4 @@
 KRFCommon package - common parts of KRFApi
-
-Important during service dev:
-	install swagger
-	Install-Package Swashbuckle.AspNetCore -Version 5.0.0-rc4
-	install jwtBearer
-	Install-Package Microsoft.AspNetCore.Authentication.JwtBearer -Version 3.1.0
 	
 This nuget has all common parts to be used on microservices for KJohn React Framework
 
@@ -21,15 +15,19 @@ Settings:
     "TokenKey": "SigningKeyString",
     "TokenValidateLife": true/false,
     "TokenValidIssuers" : [ "Issuer1" ], -> or null to disable validation
-    "TokenValidAudiences" : [ "Audience1" ] -> or null to disable validation
+    "TokenValidAudiences" : [ "Audience1" ] -> or null to disable validation,
+    "AllowAnonymousOnAuthorizeWithoutPolicy" : false, -> check Controller authorization
+    "EnableReqLogs": false, -> enable logs when not on development
+    "RequestBufferSize": null -> limit request content lenght on logs
 }
 
 
-app.AuthConfigure();
+app.AuthConfigure( bool hideErrorMessage );
+
 ```
 Auth token Errors: 
 - when authentication is needed on endpoint: 401 
-- when endpoint allows anonymous request: 200
+- when endpoint allows anonymous request: 200 (except when combining AllowAnonymousOnAuthorizeWithoutPolicy flag and \[Authorize\])
 
 Authenticated endpoint will respond with Header on response 'www-authenticate' with error code:
 KRFTOKENSIGN -> invalid signature on token ---> App should force logout in case of this code
@@ -52,6 +50,17 @@ IResponseOut<T>
 - ErrorOut Error
 
 ErrorOut - error type that is handled by api
+```
+{
+  bool WithErrors
+  int ErrorStatusCode
+  string ErrorMessage
+  string ErrorProperty
+  ResponseErrorType ErrorType
+  string ErrorCode
+  bool ValidationError
+}
+```
 
 YourCommand ICommand<TReq, TResp>
 where TReq is ICommandRequest
@@ -63,6 +72,8 @@ Command methods:
 
 Validator (fluentValidator)
 YourValidator : KRFValidator<TReq>, IKRFValidator<TReq>
+
+helper: .WithErrorCode( GenerateErrorCodeWithHttpStatus( HttpStatusCode, "ERRORCODE" ) ) -> use this helper to change httpstatus to code different that BadRequest
 
 result = IKRFValidator<TReq> validator -> await validator.CheckValidationAsync( TReq request );
 Will retun output for command ExecuteValidationAsync
@@ -83,6 +94,16 @@ Dependency:
 AddKRFController -> configures json serializer and controller on services.AddController()
 ```
   services.AddKRFController()
+```
+
+Controller Authorization control:
+```
+[KRFUserAuthorize] -> Allow logged user or admin to access resource or return Unautorized status
+[KRFAdminAuthorize] -> Allow Logged admin to access resource or return Forbidden status
+
+[Authorize] -> Allow logged user to access resource. Enable flag on appsettings 'AllowAnonymousOnAuthorizeWithoutPolicy' to allow also anonymous users access.
+The logged users will have token validated, in case of no token present, user will still be able to enter resource. Use KRFUserAuthorize or KRFAdminAuthorize in case you want to prevent anonymous user when setting is enabled. This is usefull in case of wanting to allways validate token when user is logged, or skip if not, like adding it to controller itself and using the specific roles on endpoints you don't want to allow anonymous.
+
 ```
 
 
@@ -132,36 +153,28 @@ When the return result is just to express success or error, like additions or up
 
 - exception handler middleware
 ```
-Log Request/Response and Exceptions: -> This will enable app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize? or null ) on enableReadRequest = true
+Log Request/Response and Exceptions: -> This will enable app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, AppConfiguration )
 
 app.KRFLogAndExceptionHandlerConfigure(
                     ILoggerFactory loggerFactory, 
-                    bool logErrors, 
-                    string apiName, 
-                    string tokenIdentifier, 
-                    bool enableReadRequest, 
-                    int? reqBufferSize = null )
+                    AppConfiguration )
 
 
-Log user request and exception to system events: -> This will activate midleware app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize ) on enableReadRequest = true
+Log user request and exception to system events: -> This will activate midleware app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize )
 
 app.KRFExceptionHandlerMiddlewareConfigure( 
                     ILoggerFactory loggerFactory, 
-                    bool logErrors, 
-                    string apiName, 
-                    string tokenIdentifier, 
-                    bool enableReadRequest, 
-                    int? reqBufferSize = null )
+                    AppConfiguration )
 
 Log exception to system events:
 
-app.KRFExceptionHandlerMiddlewareConfigure( ILoggerFactory loggerFactory, bool logErrors, string apiName, string tokenIdentifier );
+app.KRFExceptionHandlerMiddlewareConfigure( ILoggerFactory loggerFactory, AppConfiguration );
 
 ```
 
 - swagger
 ```
-services.SwaggerInit( ApiName, TokenKey );
+services.SwaggerInit( AppConfiguration );
 app.SwaggerConfigure( ApiName );
 ```
 
