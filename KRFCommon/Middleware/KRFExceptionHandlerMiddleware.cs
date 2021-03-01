@@ -26,7 +26,7 @@
                     app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, configuration );
             }
 
-            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, configuration );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, configuration, isDev );
 
             return app;
         }
@@ -38,7 +38,7 @@
                 app.UseMiddleware<KRFBodyRewindMiddleware>( configuration );
             }
 
-            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, configuration );
+            app._KRFExceptionHandlerMiddlewareConfigure( loggerFactory, configuration, isDev );
 
             return app;
         }
