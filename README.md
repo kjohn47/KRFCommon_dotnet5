@@ -157,18 +157,16 @@ Log Request/Response and Exceptions: -> This will enable app.UseMiddleware<KRFLo
 
 app.KRFLogAndExceptionHandlerConfigure(
                     ILoggerFactory loggerFactory, 
-                    AppConfiguration )
+                    AppConfiguration,
+                    isDev )
 
 
 Log user request and exception to system events: -> This will activate midleware app.UseMiddleware<KRFBodyRewindMiddleware>( BufferSize )
 
 app.KRFExceptionHandlerMiddlewareConfigure( 
                     ILoggerFactory loggerFactory, 
-                    AppConfiguration )
-
-Log exception to system events:
-
-app.KRFExceptionHandlerMiddlewareConfigure( ILoggerFactory loggerFactory, AppConfiguration );
+                    AppConfiguration,
+                    isDev )
 
 ```
 
