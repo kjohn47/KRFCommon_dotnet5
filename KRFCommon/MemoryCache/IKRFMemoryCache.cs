@@ -7,52 +7,18 @@
 
     public interface IKRFMemoryCache : IMemoryCache
     {
-        TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc ) where TResult : class;
+        KRFCacheResult<TResult> GetCachedItem<TResult>( string key ) where TResult : class;
 
-        TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, string settingsKey ) where TResult : class;
+        void SetCachedItem<TItem>( string key, TItem value, string settingsKey = null ) where TItem : class;
 
-        TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, bool preventCacheUpdate ) where TResult : class;
+        void RemoveCachedItem( string key );
 
-        TResult GetCachedItem<TResult>( string key, Func<TResult> queryFunc, string settingsKey, bool preventCacheUpdate ) where TResult : class;
+        Task<KRFCacheResult<TResult>> GetOrInsertCachedItemAsync<TResult>( string key, Func<Task<TResult>> fetchDataHandler, Func<TResult, IMemoryCacheHandlerResult<TResult>> fetchDataResultHandler = null ) where TResult : class;
 
-        Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc ) where TResult : class;
+        Task<KRFCacheResult<TResult>> GetOrInsertCachedItemAsync<TResult>( string key, string settingsKey, Func<Task<TResult>> fetchDataHandler, Func<TResult, IMemoryCacheHandlerResult<TResult>> fetchDataResultHandler = null ) where TResult : class;
 
-        Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey ) where TResult : class;
+        Task<TResult> GetOrInsertCachedItemAsync<TResult>( string key, Func<Task<TResult>> fetchDataHandler, Func<KRFCacheResult<TResult>, TResult> resultHandler, Func<TResult, IMemoryCacheHandlerResult<TResult>> fetchDataResultHandler = null ) where TResult : class;
 
-        Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, bool preventCacheUpdate ) where TResult : class;
-
-        Task<TResult> GetCachedItemAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, bool preventCacheUpdate ) where TResult : class;
-
-        KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc ) where TResult : class;
-
-        KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, string settingsKey ) where TResult : class;
-
-        KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, bool preventCacheUpdate ) where TResult : class;
-
-        KRFCacheResult<TResult> GetCachedItemWithMissReturn<TResult>( string key, Func<TResult> queryFunc, string settingsKey, bool preventCacheUpdate ) where TResult : class;
-
-        Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc ) where TResult : class;
-
-        Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey ) where TResult : class;
-
-        Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, bool preventCacheUpdate ) where TResult : class;
-
-        Task<KRFCacheResult<TResult>> GetCachedItemWithMissReturnAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, bool preventCacheUpdate ) where TResult : class;
-
-        TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, string settingsKey, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        TResult GetCachedItemWithHandler<TResult>( string key, Func<TResult> queryFunc, string settingsKey, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
-
-        Task<TResult> GetCachedItemWithHandlerAsync<TResult>( string key, Func<Task<TResult>> queryFunc, string settingsKey, bool preventCacheUpdate, Func<KRFCacheResult<TResult>, TResult> handler ) where TResult : class;
+        Task<TResult> GetOrInsertCachedItemAsync<TResult>( string key, string settingsKey, Func<Task<TResult>> fetchDataHandler, Func<KRFCacheResult<TResult>, TResult> resultHandler, Func<TResult, IMemoryCacheHandlerResult<TResult>> fetchDataResultHandler = null ) where TResult : class;
     }
 }
