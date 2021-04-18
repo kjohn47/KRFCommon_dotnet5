@@ -6,6 +6,7 @@
 
     using KRFCommon.CQRS.Common;
     using KRFCommon.Constants;
+    using KRFCommon.JSON;
 
     public static class AuthConfigureHelper
     {
@@ -13,6 +14,8 @@
         {
             app.UseStatusCodePages( async ctx =>
              {
+                 var serializerOpt = KRFJsonSerializerOptions.GetJsonSerializerOptions();
+
                  switch ( ctx.HttpContext.Response.StatusCode )
                  {
                      case ( ( int ) HttpStatusCode.Unauthorized ):
@@ -47,22 +50,22 @@
                              message = "User is not authenticated";
                          }
 
-                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, message, ResponseErrorType.Application, "Authentication", code ) );
+                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Unauthorized, message, ResponseErrorType.Application, "Authentication", code ), serializerOpt );
                          break;
                      }
                      case ( ( int ) HttpStatusCode.Forbidden ):
                      {
-                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Forbidden, "User is not allowed to resource", ResponseErrorType.Application, "Authorization", KRFConstants.AuthorizationErrorCode ) );
+                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.Forbidden, "User is not allowed to resource", ResponseErrorType.Application, "Authorization", KRFConstants.AuthorizationErrorCode ), serializerOpt );
                          break;
                      }
                      case ( ( int ) HttpStatusCode.NotFound ):
                      {
-                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.NotFound, "Could not find desired resource", ResponseErrorType.Application, KRFConstants.DefaultErrorCode ) );
+                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( HttpStatusCode.NotFound, "Could not find desired resource", ResponseErrorType.Application, KRFConstants.DefaultErrorCode ), serializerOpt );
                          break;
                      }
                      default:
                      {
-                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) ctx.HttpContext.Response.StatusCode, "Unknown error occurred", ResponseErrorType.Unknown, KRFConstants.DefaultErrorCode ) );
+                         await ctx.HttpContext.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) ctx.HttpContext.Response.StatusCode, "Unknown error occurred", ResponseErrorType.Unknown, KRFConstants.DefaultErrorCode ), serializerOpt );
                          break;
                      }
                  }

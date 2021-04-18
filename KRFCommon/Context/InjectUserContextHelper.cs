@@ -132,17 +132,7 @@ namespace KRFCommon.Context
                 } );
             } );
 
-            services.AddScoped<IUserContext, UserContext>( x =>
-            {
-                var ctx = new UserContext( x.GetService<IHttpContextAccessor>() );
-
-                if ( ctx.Claim.Equals( Claims.NotLogged ) )
-                {
-                    return null;
-                }
-
-                return ctx;
-            } );
+            services.AddScoped<IUserContext, UserContext>();
 
             return services;
         }

@@ -1,6 +1,8 @@
 ﻿namespace KRFCommon.CQRS.Query
 {
-    public interface IQueryRequest
+    using KRFCommon.CQRS.Common;
+
+    public interface IQueryRequest : ICQRSRequest
     {
     }
 }
