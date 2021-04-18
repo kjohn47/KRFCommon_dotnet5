@@ -10,7 +10,7 @@
         {
             return new List<JsonConverter>
             {
-                new JsonStringEnumConverter( JsonNamingPolicy.CamelCase )
+                new JsonStringEnumConverter()
             };
         }
 

@@ -1,6 +1,8 @@
 ﻿namespace KRFCommon.CQRS.Command
 {
-    public interface ICommandRequest
+    using KRFCommon.CQRS.Common;
+    
+    public interface ICommandRequest : ICQRSRequest
     {
     }
 }

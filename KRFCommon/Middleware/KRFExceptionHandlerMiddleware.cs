@@ -16,6 +16,8 @@
     using KRFCommon.Constants;
     using System.Net.Http;
     using KRFCommon.Api;
+    using KRFCommon.JSON;
+    using KRFCommon.MemoryCache;
 
     public static class KRFExceptionHandlerMiddleware
     {
@@ -103,16 +105,22 @@
                   }
 
                   //Check specific exceptons first
+                  var serializerOpt = KRFJsonSerializerOptions.GetJsonSerializerOptions();
                   switch ( error.Error )
                   {
-                      case ( HttpRequestException httpEx ):
+                      case HttpRequestException httpEx:
                       {
-                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, "Could not execute request to the server", ResponseErrorType.Exception, "Exception", KRFConstants.HttpExErrorCode ) );
+                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, "Could not execute request to the server", ResponseErrorType.Exception, "HttpRequest", KRFConstants.HttpExErrorCode ), serializerOpt );
+                          break;
+                      }
+                      case KRFMemoryCacheException memoryCacheException:
+                      {
+                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, memoryCacheException.Message, ResponseErrorType.Exception, "MemoryCache", memoryCacheException.Code ), serializerOpt );
                           break;
                       }
                       default:
                       {
-                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, ResponseErrorType.Exception, "Exception", KRFConstants.DefaultErrorCode ) );
+                          await c.Response.WriteAsJsonAsync( new ErrorOut( ( HttpStatusCode ) c.Response.StatusCode, error.Error.Message, ResponseErrorType.Exception, "Exception", KRFConstants.DefaultErrorCode ), serializerOpt );
                           break;
                       }
                   }

@@ -15,9 +15,9 @@
         {
             var queryResult = await query.QueryAsync( request );
 
-            if ( queryResult.Error != null )
+            if ( queryResult.Error.HasValue )
             {
-                return this.StatusCode( queryResult.Error.ErrorStatusCode, queryResult.Error );
+                return this.StatusCode( queryResult.Error.Value.ErrorStatusCode, queryResult.Error.Value );
             }
 
             return this.Ok( queryResult.Result );
@@ -34,15 +34,15 @@
         {
             var commandValid = await command.ExecuteValidationAsync( request );
 
-            if ( commandValid.GetError() != null )
+            if ( commandValid.Error.HasValue )
             {
-                return this.StatusCode( commandValid.GetError().ErrorStatusCode, commandValid.GetError() );
+                return this.StatusCode( commandValid.Error.Value.ErrorStatusCode, commandValid.Error.Value );
             }
 
             var commandResult = await command.ExecuteCommandAsync( request );
-            if ( commandResult.Error != null )
+            if ( commandResult.Error.HasValue )
             {
-                return this.StatusCode( commandResult.Error.ErrorStatusCode, commandResult.Error );
+                return this.StatusCode( commandResult.Error.Value.ErrorStatusCode, commandResult.Error.Value );
             }
 
             return changeAction != null ? changeAction( commandResult.Result ) : this.Ok( commandResult.Result );

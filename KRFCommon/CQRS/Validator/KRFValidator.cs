@@ -8,22 +8,22 @@
     using FluentValidation;
 
     using KRFCommon.Constants;
-    using KRFCommon.CQRS.Command;
+    using KRFCommon.CQRS.Common;
 
-    public class KRFValidator<TInput> : AbstractValidator<TInput> where TInput : class
+    public class KRFValidator<TInput> : AbstractValidator<TInput> where TInput : ICQRSRequest
     {
         public KRFValidator()
         {
             this.CascadeMode = CascadeMode.Stop;
         }
 
-        public async Task<ICommandValidationError> CheckValidationAsync( TInput request )
+        public async Task<IValidationResult> CheckValidationAsync( TInput request )
         {
             var validationResult = await this.ValidateAsync( request );
 
             if ( validationResult.IsValid )
             {
-                return new CommandValidationError();
+                return ValidationResult.ReturnValid();
             }
 
             var error = validationResult.Errors.FirstOrDefault();
@@ -41,7 +41,7 @@
                 }
                 errorCode = splitError[ 1 ];
             }
-            return new CommandValidationError( ValidationHelper.GenerateError( error.ErrorMessage, error.PropertyName, httpStatus, errorCode ) );
+            return ValidationResult.ReturnInvalid( ValidationHelper.GenerateError( error.ErrorMessage, error.PropertyName, httpStatus, errorCode ) );
         }
 
         public static string GenerateErrorCodeWithHttpStatus( HttpStatusCode httpStatus, string errorCode )
