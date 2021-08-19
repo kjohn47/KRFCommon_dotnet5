@@ -1,5 +1,6 @@
 ﻿namespace KRFCommon.CQRS.Common
 {
+    using System.Collections.Generic;
     using System.Net;
 
     using KRFCommon.Constants;
@@ -8,81 +9,63 @@
     {
 
         public ErrorOut()
-        { }
-
-        public ErrorOut( HttpStatusCode code, string message )
         {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
             this.WithErrors = true;
-            this.ErrorType = ResponseErrorType.Unknown;
-            this.ErrorCode = KRFConstants.DefaultErrorCode;
         }
 
-        public ErrorOut( HttpStatusCode code, string message, string errorCode )
+        public ErrorOut( HttpStatusCode code, string message )
+            : this(code, message, ResponseErrorType.Unknown, null)
         {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
-            this.WithErrors = true;
-            this.ErrorType = ResponseErrorType.Unknown;
-            this.ErrorCode = string.IsNullOrEmpty( errorCode ) ? KRFConstants.DefaultErrorCode : errorCode;
+        }
+
+        public ErrorOut( HttpStatusCode code, string message, string errorCode ) 
+            : this(code, message, ResponseErrorType.Unknown, errorCode)
+        {
         }
 
         public ErrorOut( HttpStatusCode code, string message, string errorProperty, string errorCode )
+            : this( code, message, ResponseErrorType.Unknown, errorProperty, errorCode )
         {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
-            this.ErrorProperty = errorProperty;
-            this.WithErrors = true;
-            this.ErrorType = ResponseErrorType.Unknown;
-            this.ErrorCode = string.IsNullOrEmpty( errorCode ) ? KRFConstants.DefaultErrorCode : errorCode;
         }
 
-        public ErrorOut( HttpStatusCode code, string message, bool validationError, string errorProperty, string errorCode )
+        public ErrorOut( HttpStatusCode code, string message, bool validationError, string errorProperty, string errorCode, IEnumerable<ValidationError> validationErrors )
+            : this( code, message, validationError, errorProperty, errorCode )
         {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
-            this.ErrorProperty = errorProperty;
-            this.WithErrors = true;
-            this.ErrorType = validationError ? ResponseErrorType.Validation : ResponseErrorType.Unknown;
-            this.ErrorCode = string.IsNullOrEmpty( errorCode ) ? KRFConstants.DefaultErrorCode : errorCode;
+            this.ValidationErrors = validationErrors;
+        }
+
+        public ErrorOut( HttpStatusCode code, string message, bool validationError, string errorProperty, string errorCode ) 
+            : this( code, message, validationError ? ResponseErrorType.Validation : ResponseErrorType.Unknown, errorProperty, errorCode )
+        {
         }
 
         public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType )
+            : this( code, message, errorType, null )
         {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
-            this.WithErrors = true;
-            this.ErrorType = errorType;
-            this.ErrorCode = KRFConstants.DefaultErrorCode;
         }
 
-        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType, string errorCode )
+        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType, string errorCode ) 
+            : this( code, message, errorType, null, errorCode )
         {
-            this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
-            this.WithErrors = true;
-            this.ErrorType = errorType;
-            this.ErrorCode = string.IsNullOrEmpty( errorCode ) ? KRFConstants.DefaultErrorCode : errorCode;
         }
 
-        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType, string errorProperty, string errorCode )
+        public ErrorOut( HttpStatusCode code, string message, ResponseErrorType errorType, string errorProperty, string errorCode ) : this()
         {
             this.ErrorMessage = message;
-            this.ErrorStatusCode = ( int ) code;
+            this.ErrorStatusCode = code;
             this.ErrorProperty = errorProperty;
-            this.WithErrors = true;
             this.ErrorType = errorType;
             this.ErrorCode = string.IsNullOrEmpty( errorCode ) ? KRFConstants.DefaultErrorCode : errorCode;
         }
 
-        public bool WithErrors { get; set; }
-        public int ErrorStatusCode { get; set; }
-        public string ErrorMessage { get; set; }
-        public string ErrorProperty { get; set; }
-        public ResponseErrorType ErrorType { get; set; }
-        public string ErrorCode { get; set; }
+        public bool WithErrors { get; private set; }
+        public HttpStatusCode ErrorStatusCode { get; private set; }
+        public string ErrorMessage { get; private set; }
+        public string ErrorProperty { get; private set; }
+        public ResponseErrorType ErrorType { get; private set; }
+        public string ErrorCode { get; private set; }
+        public IEnumerable<ValidationError> ValidationErrors { get; private set; }
 
-        public bool ValidationError => this.ErrorType.Equals( ResponseErrorType.Validation );
+        public bool IsValidationError => this.ErrorType.Equals( ResponseErrorType.Validation );
     }
 }

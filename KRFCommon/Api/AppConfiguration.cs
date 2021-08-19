@@ -19,9 +19,11 @@
         }
         public string[] TokenValidIssuers { get; set; }
         public string[] TokenValidAudiences { get; set; }
-        public bool AllowAnonymousOnAuthorizeWithoutPolicy { get; set; }
         public bool EnableReqLogs { get; set; }
         public int? RequestBufferSize { get; set; }
+
+        public LocalizationConfiguration LocalizationConfiguration { get; set; }
+        public CorsConfiguration CorsConfiguration { get; set; }
 
         public bool HasIssuer => this.TokenValidIssuers != null && this.TokenValidIssuers.Length > 0;
         public bool HasAudience => this.TokenValidAudiences != null && this.TokenValidAudiences.Length > 0;

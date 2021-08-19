@@ -1,4 +1,4 @@
-﻿namespace KRFCommon.Helpers
+﻿namespace KRFCommon.CustomTypes
 {
     using System;
     using System.Collections.Generic;
