@@ -16,13 +16,24 @@ Settings:
     "TokenValidateLife": true/false,
     "TokenValidIssuers" : [ "Issuer1" ], -> or null to disable validation
     "TokenValidAudiences" : [ "Audience1" ] -> or null to disable validation,
-    "AllowAnonymousOnAuthorizeWithoutPolicy" : false, -> check Controller authorization
     "EnableReqLogs": false, -> enable logs when not on development
-    "RequestBufferSize": null -> limit request content lenght on logs
+    "RequestBufferSize": null, -> limit request content lenght on logs
+    "LocalizationConfiguration": { -> app localization settings (null to disable)
+      "LocalizationCode": "pt-PT", -> set app culture
+      "CurrencyLocalizationCode": "en-US" -> set default currency (null to use same as LocalizationCode)
+    },
+    "CorsConfiguration": { -> configure cors pollicy (null will allow all origin/methods/headers when on developer mode)
+      "AllowAnyOrigin": true/false,
+      "AllowAnyHeader": true/false,
+      "AllowAnyMethod": true/false,
+      "AllowedOrigins": ["http://localhost", "https://localhost", "http://127.0.0.1", "https://127.0.0.1"],
+      "AllowedHeaders": ["Authorization", "content-type"],
+      "AllowedMethods": ["GET", "POST"]
+    }
 }
 
 
-app.AuthConfigure( bool hideErrorMessage );
+app.ApiConfigure( AppConfiguration configuration, ILoggerFactory loggerFactory, bool isDev ); -> configure api
 
 ```
 Auth token Errors: 
@@ -151,7 +162,7 @@ When the return result is just to express success or error, like additions or up
 * app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, apiName, tokenIdentifier, reqBufferSize? or null );
 ```
 
-- exception handler middleware
+- exception handler middleware (added with ApiConfigure())
 ```
 Log Request/Response and Exceptions: -> This will enable app.UseMiddleware<KRFLogRequestResponseMiddleware>( loggerFactory, AppConfiguration )
 
