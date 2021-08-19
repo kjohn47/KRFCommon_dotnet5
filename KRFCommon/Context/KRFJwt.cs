@@ -26,7 +26,7 @@
                     new Claim( KRFJwtConstants.UserName, context.UserName ),
                     new Claim( KRFJwtConstants.UserId, context.UserId.ToString() ),
                     new Claim( KRFJwtConstants.SessionId, context.SessionId.ToString() ),
-                    new Claim( KRFJwtConstants.IsAdmin, context.Claim.Equals( Claims.Admin ) ? "true" : "false" )
+                    new Claim( KRFJwtConstants.IsAdmin, context.Claim.Equals( Claims.Admin ) ? bool.TrueString : bool.FalseString )
                 } ),
                 Expires = expiration,
                 SigningCredentials = new SigningCredentials( key, SecurityAlgorithms.HmacSha512Signature )
@@ -39,16 +39,16 @@
         {
             if ( claims == null || !claims.Any() )
             {
-                return new Claim( KRFConstants.UserRoleClaim, Claims.NotLogged.ToString() );
+                return new Claim( KRFConstants.UserRoleClaim, nameof( Claims.NotLogged ) );
             }
 
-            var isAdmin = claims.FirstOrDefault( x => x.Type.Equals( KRFJwtConstants.IsAdmin, StringComparison.OrdinalIgnoreCase ) )?.Value.Equals( "true", StringComparison.OrdinalIgnoreCase );
+            var isAdmin = claims.FirstOrDefault( x => x.Type.Equals( KRFJwtConstants.IsAdmin, StringComparison.OrdinalIgnoreCase ) )?.Value.Equals( bool.TrueString, StringComparison.OrdinalIgnoreCase );
             if ( isAdmin ?? false )
             {
-                return new Claim( KRFConstants.UserRoleClaim, Claims.Admin.ToString() );
+                return new Claim( KRFConstants.UserRoleClaim, nameof( Claims.Admin ) );
             }
 
-            return new Claim( KRFConstants.UserRoleClaim, Claims.User.ToString() );
+            return new Claim( KRFConstants.UserRoleClaim, nameof( Claims.User ) );
         }
     }
 }
