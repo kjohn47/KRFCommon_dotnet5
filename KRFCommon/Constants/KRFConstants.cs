@@ -23,6 +23,8 @@
         public const string NotAvailableErrorCode = "KRFNOTAVAILABLE";
         public const string HttpExErrorCode = "KRFHTTPEXCEPTION";
         public const string AnonymousIdentity = "IsAnonymous";
+        public const string ValidationErrorCode = "KRFVALIDATIONERROR";
+        public const string ValidationErrorMessage = "One or more fields have invalid data";
 
         //Int Constants
         public const int EntityFrameworkEventId = 20101;

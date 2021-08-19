@@ -7,11 +7,31 @@
     using KRFCommon.CQRS.Common;
     using KRFCommon.Constants;
     using KRFCommon.JSON;
+    using KRFCommon.Middleware;
+    using Microsoft.Extensions.Logging;
+    using KRFCommon.Api;
+    using System;
 
-    public static class AuthConfigureHelper
+    public static class ApiConfigurator
     {
-        public static IApplicationBuilder AuthConfigure( this IApplicationBuilder app, bool hideErrorMessage = true )
+        public static IApplicationBuilder ApiConfigure( this IApplicationBuilder app, AppConfiguration configuration, ILoggerFactory loggerFactory, bool isDev = false )
         {
+            if ( configuration == null )
+            {
+                throw new ArgumentNullException( nameof( AppConfiguration ) );
+            }
+
+            app.UseLocalization( configuration.LocalizationConfiguration );
+
+            app.KRFLogAndExceptionHandlerConfigure(
+                loggerFactory,
+                configuration,
+                isDev );
+
+            app.UseHttpsRedirection();
+
+            app.UseRouting();
+
             app.UseStatusCodePages( async ctx =>
              {
                  var serializerOpt = KRFJsonSerializerOptions.GetJsonSerializerOptions();
@@ -45,7 +65,7 @@
                              }
                          }
 
-                         if ( hideErrorMessage )
+                         if ( !isDev )
                          {
                              message = "User is not authenticated";
                          }
@@ -71,11 +91,16 @@
                  }
              } );
 
-            app.UseCors( x => x.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader() );
+            app.CorsConfigure( configuration.CorsConfiguration, isDev );
 
             app.UseAuthentication();
 
             app.UseAuthorization();
+
+            app.UseEndpoints( endpoints =>
+            {
+                endpoints.MapControllers();
+            } );
 
             return app;
         }

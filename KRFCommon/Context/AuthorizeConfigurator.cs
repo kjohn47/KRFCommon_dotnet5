@@ -4,7 +4,6 @@ namespace KRFCommon.Context
     using System.IdentityModel.Tokens.Jwt;
     using System.Linq;
     using System.Net;
-    using System.Security.Claims;
     using System.Text;
     using System.Threading.Tasks;
 
@@ -18,7 +17,7 @@ namespace KRFCommon.Context
     using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.IdentityModel.Tokens;
 
-    public static class InjectUserContextHelper
+    public static class AuthorizeConfigurator
     {
         public static IServiceCollection AddUserBearerContext( this IServiceCollection services, IConfiguration configuration )
         {
@@ -75,12 +74,6 @@ namespace KRFCommon.Context
                              var bearerToken = ctx.Request.Headers[ configuration.TokenIdentifier ].ElementAt( 0 );
                              var token = bearerToken.StartsWith( KRFJwtConstants.BearerSpaced, StringComparison.OrdinalIgnoreCase ) ? bearerToken.Substring( 7 ) : bearerToken;
                              ctx.Token = token;
-                         }
-                         else if ( configuration.AllowAnonymousOnAuthorizeWithoutPolicy )
-                         {
-                             ctx.Principal = new ClaimsPrincipal();
-                             ctx.Principal.AddIdentity( new ClaimsIdentity( KRFJwtConstants.Bearer, KRFConstants.AnonymousIdentity, KRFConstants.AnonymousIdentity ) );
-                             ctx.Success();
                          }
                          else
                          {

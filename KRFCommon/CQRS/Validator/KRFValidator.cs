@@ -1,6 +1,5 @@
 ﻿namespace KRFCommon.CQRS.Validator
 {
-    using System;
     using System.Linq;
     using System.Net;
     using System.Threading.Tasks;
@@ -12,9 +11,16 @@
 
     public class KRFValidator<TInput> : AbstractValidator<TInput> where TInput : ICQRSRequest
     {
-        public KRFValidator()
+        private readonly HttpStatusCode HttpStatus = HttpStatusCode.BadRequest;
+
+        public KRFValidator( HttpStatusCode httpStatus, CascadeMode? validationMode = null ) : this( validationMode )
         {
-            this.CascadeMode = CascadeMode.Stop;
+            this.HttpStatus = httpStatus;
+        }
+
+        public KRFValidator( CascadeMode? validationMode = null )
+        {
+            this.CascadeMode = validationMode.HasValue ? validationMode.Value : CascadeMode.Stop;
         }
 
         public async Task<IValidationResult> CheckValidationAsync( TInput request )
@@ -26,27 +32,24 @@
                 return ValidationResult.ReturnValid();
             }
 
-            var error = validationResult.Errors.FirstOrDefault();
-            HttpStatusCode? httpStatus = null;
-            var errorCode = KRFConstants.DefaultErrorCode;
-            if ( !string.IsNullOrEmpty( error.ErrorCode ) )
+            if ( this.CascadeMode.Equals( CascadeMode.Continue ) )
             {
-                var splitError = error.ErrorCode.Split( '|' );
-                if ( splitError.Length == 2 )
-                {
-                    if ( Enum.TryParse<HttpStatusCode>( splitError[ 0 ], out var status ) )
-                    {
-                        httpStatus = status;
-                    }
-                }
-                errorCode = splitError[ 1 ];
+                return ValidationResult.ReturnInvalid(
+                    ValidationHelper.GenerateError(
+                        KRFConstants.ValidationErrorMessage,
+                        string.Empty,
+                        this.HttpStatus,
+                        KRFConstants.ValidationErrorCode,
+                        validationResult.Errors.Select( x => new ValidationError( x.ErrorCode, x.ErrorMessage, x.PropertyName ) ) ) );
             }
-            return ValidationResult.ReturnInvalid( ValidationHelper.GenerateError( error.ErrorMessage, error.PropertyName, httpStatus, errorCode ) );
-        }
 
-        public static string GenerateErrorCodeWithHttpStatus( HttpStatusCode httpStatus, string errorCode )
-        {
-            return string.Format( "{0}|{1}", httpStatus.ToString(), errorCode );
+            var error = validationResult.Errors.First();
+            return ValidationResult.ReturnInvalid(
+                ValidationHelper.GenerateError(
+                    error.ErrorMessage,
+                    error.PropertyName,
+                    this.HttpStatus,
+                    error.ErrorCode ) );
         }
     }
 }
