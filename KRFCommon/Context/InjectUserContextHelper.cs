@@ -15,6 +15,7 @@ namespace KRFCommon.Context
     using Microsoft.AspNetCore.Http;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.DependencyInjection.Extensions;
     using Microsoft.IdentityModel.Tokens;
 
     public static class InjectUserContextHelper
@@ -42,7 +43,7 @@ namespace KRFCommon.Context
                 throw new Exception( "Missing token key setting" );
             }
 
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            services.TryAddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
             services.AddAuthentication( o =>
             {
@@ -124,11 +125,11 @@ namespace KRFCommon.Context
             {
                 options.AddPolicy( Policies.Admin, policy =>
                 {
-                    policy.RequireClaim( KRFConstants.UserRoleClaim, Claims.Admin.ToString() );
+                    policy.RequireClaim( KRFConstants.UserRoleClaim, nameof( Claims.Admin ) );
                 } );
                 options.AddPolicy( Policies.User, policy =>
                 {
-                    policy.RequireClaim( KRFConstants.UserRoleClaim, Claims.User.ToString(), Claims.Admin.ToString() );
+                    policy.RequireClaim( KRFConstants.UserRoleClaim, nameof( Claims.User ), nameof( Claims.Admin ) );
                 } );
             } );
 

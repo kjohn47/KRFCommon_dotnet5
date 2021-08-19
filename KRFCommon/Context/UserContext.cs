@@ -14,7 +14,7 @@
             var user = httpContextAccessor?.HttpContext?.User;
             this.Claim = Claims.NotLogged;
 
-            if ( user.Identity != null && user.Identity.IsAuthenticated && user.Claims != null && user.Claims.Count() > 0 )
+            if ( user.Identity != null && user.Identity.IsAuthenticated && user.Claims != null && user.Claims.Any() )
             {
                 if ( Enum.TryParse<Claims>( user.FindFirst( KRFConstants.UserRoleClaim )?.Value, true, out var claim ) )
                 {
