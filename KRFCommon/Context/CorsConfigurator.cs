@@ -26,7 +26,10 @@
                  }
                  else
                  {
-                     x.WithOrigins( configuration.AllowedOrigins );
+                     if ( configuration.AllowedOrigins != null && configuration.AllowedOrigins.Length > 0 )
+                     {
+                         x.WithOrigins( configuration.AllowedOrigins );
+                     }
                  }
 
                  if ( configuration.AllowAnyHeader )
@@ -35,7 +38,10 @@
                  }
                  else
                  {
-                     x.WithHeaders( configuration.AllowedHeaders );
+                     if ( configuration.AllowedHeaders != null && configuration.AllowedHeaders.Length > 0 )
+                     {
+                         x.WithHeaders( configuration.AllowedHeaders );
+                     }
                  }
 
                  if ( configuration.AllowAnyMethod )
@@ -44,7 +50,10 @@
                  }
                  else
                  {
-                     x.WithMethods( configuration.AllowedMethods );
+                     if ( configuration.AllowedMethods != null && configuration.AllowedMethods.Length > 0 )
+                     {
+                         x.WithMethods( configuration.AllowedMethods );
+                     }
                  }
              } );
 
