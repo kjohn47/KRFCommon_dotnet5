@@ -5,15 +5,15 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <OutputType>Library</OutputType>
     <PackageId>KRFCommon</PackageId>
-    <Version>1.5.2.3</Version>
+    <Version>1.5.2.4</Version>
     <Authors>Joao Morgado</Authors>
     <Copyright>Joao Morgado</Copyright>
     <Company>GitHub</Company>
     <PackageDescription>This package common library used on KRF api!</PackageDescription>
     <RepositoryUrl>https://github.com/kjohn47/KRFCommon</RepositoryUrl>
     <NeutralLanguage>en</NeutralLanguage>
-    <AssemblyVersion>1.5.2.3</AssemblyVersion>
-    <FileVersion>1.5.2.3</FileVersion>
+    <AssemblyVersion>1.5.2.4</AssemblyVersion>
+    <FileVersion>1.5.2.4</FileVersion>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">

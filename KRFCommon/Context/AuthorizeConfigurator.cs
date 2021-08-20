@@ -126,7 +126,7 @@ namespace KRFCommon.Context
                 } );
             } );
 
-            services.AddScoped<IUserContext, UserContext>();
+            services.AddSingleton<IUserContextBuilder, UserContextBuilder>();
 
             return services;
         }
