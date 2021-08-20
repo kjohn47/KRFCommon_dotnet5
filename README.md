@@ -73,6 +73,8 @@ ErrorOut - error type that is handled by api
 }
 ```
 
+IUserContextBuilder.GetContext() => service that returns user context object generated from token
+
 YourCommand ICommand<TReq, TResp>
 where TReq is ICommandRequest
 where TResp is ICommandResponse -> ICQRSResponse
@@ -99,6 +101,7 @@ Will return output of type: ICommandValidationError -> ErrorOut GetError();
  Implements:
  async Task<IActionResult> ExecuteAsyncQuery<Tinput, Toutput>( Tinput request, IQuery<Tinput, Toutput> query )
  async Task<IActionResult> ExecuteAsyncCommand<Tinput, Toutput>( Tinput request, ICommand<Tinput, Toutput> command, Func<Toutput, IActionResult> changeAction = null )
+ async Task<IActionResult> ExecuteFileQueryAsync<Tinput, Toutput>( Tinput request, IQuery<Tinput, Toutput> query ) => special type of query to get files (ideal for file repository that returns raw data instead of json with encoded data)
 
 ```
 Dependency: 
