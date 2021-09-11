@@ -11,6 +11,7 @@
     public class KRFLogToFileLogger : ILogger
     {
         protected readonly KRFLogToFileLoggerProvider _KRFLogToFileLoggerProvider;
+        private Object fileWriterLock = new Object();
 
         public KRFLogToFileLogger( KRFLogToFileLoggerProvider krfLogToFileLoggerProvider )
         {
@@ -81,30 +82,33 @@
 
             //Create line to be recorded on log
             var logRecord = string.Format( "[{0}] {1} {2}", DateTimeOffset.UtcNow.ToString( KRFConstants.TimeStampFormat ), formatter( state, exception ), exception != null ? exception.StackTrace : "" );
-            try
-            {
-                //Try add new record
-                using ( var streamWriter = new StreamWriter( fullFilePath, true ) )
-                {
-                    streamWriter.WriteLine( logRecord );
-                }
-            }
-            catch
+            lock (fileWriterLock)
             {
                 try
                 {
-                    //Failed, try to record on auxiliar file
-                    using ( var streamWriter = new StreamWriter( string.Format( "{0}.aux.txt", fullFilePath ), true ) )
+                    //Try add new record
+                    using (var streamWriter = new StreamWriter(fullFilePath, true))
                     {
-                        streamWriter.WriteLine( logRecord );
+                        streamWriter.WriteLine(logRecord);
                     }
                 }
                 catch
                 {
-                    //Failed again? just ignore
+                    try
+                    {
+                        //Failed, try to record on auxiliar file
+                        using (var streamWriter = new StreamWriter(string.Format("{0}.aux.txt", fullFilePath), true))
+                        {
+                            streamWriter.WriteLine(logRecord);
+                        }
+                    }
+                    catch
+                    {
+                        //Failed again? just ignore
+                        return;
+                    }
                     return;
                 }
-                return;
             }
         }
     }
